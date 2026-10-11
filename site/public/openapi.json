@@ -1,0 +1,529 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "papertrade-sdk site API",
+    "version": "0.2.0",
+    "summary": "Read-only MCP server and API proxy for Papertrade. Unofficial.",
+    "description": "The MCP endpoint speaks JSON-RPC 2.0 over Streamable HTTP (stateless, batches accepted). Tools are strictly read-only and build only unsigned EIP-712 payloads. Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose all margin quickly.",
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "contact": {
+      "name": "papertrade-sdk",
+      "url": "https://github.com/nirholas/papertrade-sdk"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://papertrade-sdk.pages.dev"
+    }
+  ],
+  "externalDocs": {
+    "description": "Documentation",
+    "url": "https://papertrade-sdk.pages.dev/docs/"
+  },
+  "tags": [
+    {
+      "name": "mcp"
+    },
+    {
+      "name": "proxy"
+    },
+    {
+      "name": "discovery"
+    }
+  ],
+  "paths": {
+    "/mcp": {
+      "post": {
+        "operationId": "mcpRpc",
+        "tags": [
+          "mcp"
+        ],
+        "summary": "MCP JSON-RPC 2.0 (initialize, ping, tools/list, tools/call)",
+        "description": "Tools: papertrade_markets, papertrade_estimate_position, papertrade_paper_mint, papertrade_wallet_positions, papertrade_protocol_health, papertrade_prepare_open, papertrade_build_typed_data. Send Accept: application/json, text/event-stream. A notification-only body returns 202.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/JsonRpcRequest"
+                  },
+                  {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                      "$ref": "#/components/schemas/JsonRpcRequest"
+                    }
+                  }
+                ]
+              },
+              "examples": {
+                "toolsList": {
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "tools/list"
+                  }
+                },
+                "estimate": {
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 2,
+                    "method": "tools/call",
+                    "params": {
+                      "name": "papertrade_estimate_position",
+                      "arguments": {
+                        "market": "BTC",
+                        "side": "long",
+                        "marginUsd": 100,
+                        "leverage": 500,
+                        "priceMovePct": 0.1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response (single or batch), or one SSE message event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JsonRpcResponse"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Notification accepted, no body"
+          },
+          "400": {
+            "description": "Parse error or invalid request"
+          },
+          "413": {
+            "description": "Body larger than 64 KB"
+          },
+          "429": {
+            "description": "Rate limit exceeded (60 tool calls per minute per IP); see Retry-After"
+          }
+        }
+      },
+      "get": {
+        "operationId": "mcpInfo",
+        "tags": [
+          "mcp"
+        ],
+        "summary": "Describe the server (JSON). With Accept: text/event-stream returns 405.",
+        "responses": {
+          "200": {
+            "description": "Server description",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "SSE stream not offered"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "mcpDelete",
+        "tags": [
+          "mcp"
+        ],
+        "summary": "Not supported (stateless)",
+        "responses": {
+          "405": {
+            "description": "Method not allowed"
+          }
+        }
+      },
+      "options": {
+        "operationId": "mcpPreflight",
+        "tags": [
+          "mcp"
+        ],
+        "summary": "CORS preflight",
+        "responses": {
+          "204": {
+            "description": "CORS headers"
+          }
+        }
+      }
+    },
+    "/api/papertrade/{path}": {
+      "get": {
+        "operationId": "papertradeRead",
+        "tags": [
+          "proxy"
+        ],
+        "summary": "Same-origin read proxy of https://exchange.papertrade.xyz",
+        "description": "Forwards GET reads and the live wallet SSE stream (`state/user/live?user=0x...`). Query strings must be canonical; use the SDK client.",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "state/trading",
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upstream response"
+          },
+          "429": {
+            "description": "Upstream rate limit"
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "operationId": "llmsTxt",
+        "tags": [
+          "discovery"
+        ],
+        "summary": "LLM-oriented index",
+        "responses": {
+          "200": {
+            "description": "text/plain",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms-full.txt": {
+      "get": {
+        "operationId": "llmsFull",
+        "tags": [
+          "discovery"
+        ],
+        "summary": "All docs inlined",
+        "responses": {
+          "200": {
+            "description": "text/plain",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/mcp/server-card.json": {
+      "get": {
+        "operationId": "serverCard",
+        "tags": [
+          "discovery"
+        ],
+        "summary": "MCP server card",
+        "responses": {
+          "200": {
+            "description": "Server card",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/agent-card.json": {
+      "get": {
+        "operationId": "agentCard",
+        "tags": [
+          "discovery"
+        ],
+        "summary": "A2A agent card",
+        "responses": {
+          "200": {
+            "description": "Agent card",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JsonRpcRequest": {
+        "type": "object",
+        "required": [
+          "jsonrpc",
+          "method"
+        ],
+        "properties": {
+          "jsonrpc": {
+            "const": "2.0"
+          },
+          "id": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "initialize",
+              "notifications/initialized",
+              "ping",
+              "tools/list",
+              "tools/call",
+              "resources/list",
+              "prompts/list"
+            ]
+          },
+          "params": {
+            "type": "object"
+          }
+        }
+      },
+      "JsonRpcResponse": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "const": "2.0"
+          },
+          "id": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "result": {},
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "papertrade_markets_input": {
+        "type": "object",
+        "properties": {
+          "market": {
+            "type": "string",
+            "description": "Optional market symbol to return only that market.",
+            "enum": [
+              "BTC",
+              "ETH"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "papertrade_estimate_position_input": {
+        "type": "object",
+        "properties": {
+          "market": {
+            "type": "string",
+            "description": "Market symbol.",
+            "enum": [
+              "BTC",
+              "ETH"
+            ]
+          },
+          "side": {
+            "type": "string",
+            "description": "Position direction.",
+            "enum": [
+              "long",
+              "short"
+            ]
+          },
+          "marginUsd": {
+            "type": "number",
+            "description": "Margin in USD. Protocol minimum is 10.",
+            "minimum": 0.01,
+            "maximum": 10000000
+          },
+          "leverage": {
+            "type": "integer",
+            "description": "Whole-number leverage, 1 up to the market maximum (1000 at launch).",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "entryPrice": {
+            "type": "number",
+            "description": "Entry price in USD. Defaults to the live mark.",
+            "minimum": 0
+          },
+          "exitPrice": {
+            "type": "number",
+            "description": "Exit price in USD for a single scenario.",
+            "minimum": 0
+          },
+          "priceMovePct": {
+            "type": "number",
+            "description": "Signed price move from entry in percent (for example 0.1 is +0.1%). Alternative to exitPrice.",
+            "minimum": -100,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "market",
+          "side",
+          "marginUsd",
+          "leverage"
+        ],
+        "additionalProperties": false
+      },
+      "papertrade_paper_mint_input": {
+        "type": "object",
+        "properties": {
+          "lossBasisUsd": {
+            "type": "number",
+            "description": "Loss basis in USD to price. Defaults to 1.",
+            "minimum": 0,
+            "maximum": 1000000000
+          }
+        },
+        "additionalProperties": false
+      },
+      "papertrade_wallet_positions_input": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "HyperEVM wallet address (0x...).",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "additionalProperties": false
+      },
+      "papertrade_protocol_health_input": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "papertrade_prepare_open_input": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "description": "Trader wallet address (0x...).",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          },
+          "market": {
+            "type": "string",
+            "description": "Market symbol.",
+            "enum": [
+              "BTC",
+              "ETH"
+            ]
+          },
+          "side": {
+            "type": "string",
+            "description": "Position direction.",
+            "enum": [
+              "long",
+              "short"
+            ]
+          },
+          "marginUsd": {
+            "type": "number",
+            "description": "Margin in USD.",
+            "minimum": 0.01,
+            "maximum": 10000000
+          },
+          "leverage": {
+            "type": "integer",
+            "description": "Whole-number leverage.",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "useDebt": {
+            "type": "boolean",
+            "description": "Pay margin from the queued (owed) balance. Default false."
+          }
+        },
+        "required": [
+          "user",
+          "market",
+          "side",
+          "marginUsd",
+          "leverage"
+        ],
+        "additionalProperties": false
+      },
+      "papertrade_build_typed_data_input": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Intent type.",
+            "enum": [
+              "RegisterSessionKey",
+              "WithdrawToCore",
+              "Stake",
+              "Unstake",
+              "Claim",
+              "OpenPosition",
+              "Close",
+              "CancelIntent"
+            ]
+          },
+          "message": {
+            "type": "object",
+            "description": "Message fields for the type (see papertrade-sdk PAPERTRADE_TYPES). uint values may be decimal strings or numbers; addresses are 0x hex. nonce and deadline are optional.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "type",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

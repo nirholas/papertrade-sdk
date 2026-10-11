@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.nirholas/papertrade-sdk",
+  "title": "Papertrade SDK",
+  "description": "Read-only Papertrade (1000x synthetic perps) tools: live markets, exact position quotes, wallet positions, protocol health and unsigned EIP-712 builders.",
+  "repository": {
+    "url": "https://github.com/nirholas/papertrade-sdk",
+    "source": "github"
+  },
+  "version": "0.2.0",
+  "websiteUrl": "https://papertrade-sdk.pages.dev",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://papertrade-sdk.pages.dev/mcp"
+    }
+  ]
+}

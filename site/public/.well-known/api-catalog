@@ -1,0 +1,48 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://papertrade-sdk.pages.dev/mcp",
+      "service-desc": [
+        {
+          "href": "https://papertrade-sdk.pages.dev/openapi.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://papertrade-sdk.pages.dev/docs/mcp",
+          "type": "text/html"
+        }
+      ],
+      "describedby": [
+        {
+          "href": "https://papertrade-sdk.pages.dev/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://papertrade-sdk.pages.dev/.well-known/agent-card.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://papertrade-sdk.pages.dev/llms.txt",
+          "type": "text/plain"
+        }
+      ]
+    },
+    {
+      "anchor": "https://papertrade-sdk.pages.dev/api/papertrade/",
+      "service-desc": [
+        {
+          "href": "https://papertrade-sdk.pages.dev/openapi.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://papertrade-sdk.pages.dev/docs/reference",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}
