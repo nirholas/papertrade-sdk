@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "papertrade-sdk"
+abstract: "TypeScript SDK for Papertrade, the 1000x on-chain perps exchange on Hyperliquid HyperEVM: API client, live stream, EIP-712 intent signing, deposits, withdrawals and verified settlement math."
+license: Apache-2.0
+repository-code: "https://github.com/nirholas/papertrade-sdk"
+url: "https://papertrade-sdk.pages.dev"
+keywords: [papertrade, hyperliquid, hyperevm, perps, defi]
+authors:
+  - name: three.ws
+    website: "https://three.ws"

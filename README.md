@@ -1,5 +1,14 @@
 # papertrade-sdk
 
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0a8f5b?style=flat-square)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://github.com/nirholas/papertrade-sdk)
+[![HyperEVM](https://img.shields.io/badge/HyperEVM-chain_999-0a8f5b?style=flat-square)](https://papertrade.xyz)
+[![GitHub stars](https://img.shields.io/github/stars/nirholas/papertrade-sdk?style=flat-square&color=0a8f5b)](https://github.com/nirholas/papertrade-sdk/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/nirholas/papertrade-sdk?style=flat-square&color=0a8f5b)](https://github.com/nirholas/papertrade-sdk/commits/main)
+[![Unofficial](https://img.shields.io/badge/community-unofficial-lightgrey?style=flat-square)](#the-papertrade-toolkit)
+
+[Live site](https://papertrade-sdk.pages.dev) · [Issues](https://github.com/nirholas/papertrade-sdk/issues) · [Discussions](https://github.com/nirholas/papertrade-sdk/discussions) · [Papertrade](https://papertrade.xyz) · [Toolkit](#the-papertrade-toolkit)
+
 TypeScript SDK for [Papertrade](https://papertrade.xyz), the fully on-chain 1000x synthetic perps exchange on Hyperliquid's HyperEVM. It covers the public API, the live account stream, EIP-712 intent signing for trading, deposits, withdrawals and PAPER staking, plus settlement math checked against mainnet.
 
 > **Unofficial.** This is an independent community project, not affiliated with or endorsed by the Papertrade team. Trading at high leverage can lose your whole margin in seconds. Nothing here is financial advice.
@@ -175,25 +184,33 @@ npm run deploy:site # publish site/ to Cloudflare Pages (project "papertrade-sdk
 
 The site in `site/` is a Cloudflare Pages project. It bundles `site/app.ts` (the SDK running in the browser) into `site/public/`, and `site/functions/api/papertrade/[[path]].ts` proxies the allowlisted Papertrade endpoints. Set `PAPERTRADE_API_URL` in `site/wrangler.toml` to point the proxy at a different upstream.
 
-## Related
+## The Papertrade toolkit
 
-- Official docs: [docs.papertrade.xyz](https://docs.papertrade.xyz)
-- Protocol reference: [docs/PROTOCOL.md](docs/PROTOCOL.md)
-- For AI agents: [AGENTS.md](AGENTS.md), [llms.txt](llms.txt)
+Docs: [official Papertrade docs](https://docs.papertrade.xyz), [protocol reference](docs/PROTOCOL.md), and for AI agents [AGENTS.md](AGENTS.md) and [llms.txt](llms.txt).
 
-Built on this SDK:
+Nine open-source building blocks for [Papertrade](https://papertrade.xyz), the fully on-chain 1000x perps exchange on Hyperliquid HyperEVM. Use them together or on their own.
 
-| Repo | What it is |
+| Project | What it does |
 |---|---|
-| [papertrade-ai](https://github.com/nirholas/papertrade-ai) | MCP server and CLI: trade Papertrade from Claude, ChatGPT, Cursor and other AI clients |
-| [papertrade-terminal](https://github.com/nirholas/papertrade-terminal) | Non-custodial trading terminal with charts, deposits, withdrawals and swaps |
-| [papertrade-analytics](https://github.com/nirholas/papertrade-analytics) | Live protocol dashboard: TVL, volume, open interest, PAPER economics |
-| [papertrade-explorer](https://github.com/nirholas/papertrade-explorer) | Explorer for wallets, positions, intents and the leaderboard |
-| [papertrade-liquidations](https://github.com/nirholas/papertrade-liquidations) | Live liquidation map and closest-to-bust feed |
-| [papertrade-yield](https://github.com/nirholas/papertrade-yield) | PAPER staking: rewards, yield history, stake and claim |
-| [papertrade-alerts](https://github.com/nirholas/papertrade-alerts) | Telegram, Discord and webhook alerts for wallets and markets |
-| [papertrade-copytrade](https://github.com/nirholas/papertrade-copytrade) | Copy-trading CLI with required guardrails, dry run by default |
-| [papertrade-x402](https://github.com/nirholas/papertrade-x402) | Pay-per-call Papertrade intelligence API for agents over x402 |
+| [papertrade-ai](https://github.com/nirholas/papertrade-ai) | MCP server and CLI: trade Papertrade from Claude, ChatGPT, Cursor and any MCP client |
+| **papertrade-sdk** (this repo) | Typed API client, live account stream, EIP-712 signing and verified settlement math. |
+| [papertrade-terminal](https://github.com/nirholas/papertrade-terminal) | Non-custodial web trading terminal with charts, order ticket, funding and swaps. |
+| [papertrade-analytics](https://github.com/nirholas/papertrade-analytics) | DefiLlama-style dashboard and JSON API: TVL, volume, OI, PAPER economics. |
+| [papertrade-explorer](https://github.com/nirholas/papertrade-explorer) | Linkable wallet pages, decoded transactions and a live leaderboard. |
+| [papertrade-liquidations](https://github.com/nirholas/papertrade-liquidations) | Liquidation map and closest-to-bust feed, recomputed with the verified formula. |
+| [papertrade-yield](https://github.com/nirholas/papertrade-yield) | PAPER staking dashboard with realized USDC yield and wallet-signed actions. |
+| [papertrade-alerts](https://github.com/nirholas/papertrade-alerts) | Know before the liquidation: Telegram, Discord and webhook alerts. |
+| [papertrade-copytrade](https://github.com/nirholas/papertrade-copytrade) | Guard-railed copy-trading CLI. Dry run by default. |
+| [papertrade-x402](https://github.com/nirholas/papertrade-x402) | Pay-per-call intelligence API for AI agents, paid in USDC on Solana or Base. |
+
+## Contributing and support
+
+- Found a bug or want a feature? [Open an issue](https://github.com/nirholas/papertrade-sdk/issues/new/choose).
+- Questions and show-and-tell: [Discussions](https://github.com/nirholas/papertrade-sdk/discussions).
+- Pull requests are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
+- If this saved you time, a star helps other Papertrade traders and builders find it.
+
+Built by [three.ws](https://three.ws).
 
 ## License
 

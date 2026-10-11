@@ -51,13 +51,23 @@
     "eip-712",
     "trading",
     "sdk",
-    "defi"
+    "defi",
+    "typescript",
+    "viem",
+    "crypto",
+    "web3",
+    "session-keys",
+    "staking",
+    "cloudflare-workers",
+    "bun",
+    "deno",
+    "ai-agents"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nirholas/papertrade-sdk.git"
   },
-  "homepage": "https://github.com/nirholas/papertrade-sdk#readme",
+  "homepage": "https://papertrade-sdk.pages.dev",
   "bugs": {
     "url": "https://github.com/nirholas/papertrade-sdk/issues"
   },
