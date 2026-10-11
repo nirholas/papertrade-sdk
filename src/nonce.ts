@@ -25,7 +25,7 @@ export function nonceLane(action: IntentAction): 'paper' | 'session' {
 
 function randomSeed(): bigint {
   const bytes = new Uint8Array(3);
-  globalThis.crypto.getRandomValues(bytes);
+  crypto.getRandomValues(bytes);
   const r = (bytes[0] << 16) | (bytes[1] << 8) | bytes[2];
   // Never 0: the relayer treats nonce 0 as unset.
   return BigInt(r === 0 ? 1 : r) * 256n;

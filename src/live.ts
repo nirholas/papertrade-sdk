@@ -269,7 +269,7 @@ export function streamWallet(options: WalletStreamOptions): () => void {
     let silenceMs = 45_000;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const arm = () => {
-      clearTimeout(timer);
+      if (timer !== undefined) clearTimeout(timer);
       timer = setTimeout(() => conn.abort(new Error('silence')), silenceMs);
     };
     try {
@@ -309,7 +309,7 @@ export function streamWallet(options: WalletStreamOptions): () => void {
         }
       }
     } finally {
-      clearTimeout(timer);
+      if (timer !== undefined) clearTimeout(timer);
       stop.signal.removeEventListener('abort', onStop);
     }
   }
