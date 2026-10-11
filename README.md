@@ -5,9 +5,11 @@
 [![HyperEVM](https://img.shields.io/badge/HyperEVM-chain_999-0a8f5b?style=flat-square)](https://papertrade.xyz)
 [![GitHub stars](https://img.shields.io/github/stars/nirholas/papertrade-sdk?style=flat-square&color=0a8f5b)](https://github.com/nirholas/papertrade-sdk/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/nirholas/papertrade-sdk?style=flat-square&color=0a8f5b)](https://github.com/nirholas/papertrade-sdk/commits/main)
+[![MCP](https://img.shields.io/badge/MCP-streamable--http-0a8f5b?style=flat-square)](https://papertrade-sdk.pages.dev/docs/mcp)
+[![Docs](https://img.shields.io/badge/docs-papertrade--sdk.pages.dev-0a8f5b?style=flat-square)](https://papertrade-sdk.pages.dev/docs/)
 [![Unofficial](https://img.shields.io/badge/community-unofficial-lightgrey?style=flat-square)](#the-papertrade-toolkit)
 
-[Live site](https://papertrade-sdk.pages.dev) · [Issues](https://github.com/nirholas/papertrade-sdk/issues) · [Discussions](https://github.com/nirholas/papertrade-sdk/discussions) · [Papertrade](https://papertrade.xyz) · [Toolkit](#the-papertrade-toolkit)
+[Live playground](https://papertrade-sdk.pages.dev) · [Docs](https://papertrade-sdk.pages.dev/docs/) · [MCP](https://papertrade-sdk.pages.dev/mcp) · [llms.txt](https://papertrade-sdk.pages.dev/llms.txt) · [Issues](https://github.com/nirholas/papertrade-sdk/issues) · [Discussions](https://github.com/nirholas/papertrade-sdk/discussions) · [Papertrade](https://papertrade.xyz) · [Toolkit](#the-papertrade-toolkit)
 
 TypeScript SDK for [Papertrade](https://papertrade.xyz), the fully on-chain 1000x synthetic perps exchange on Hyperliquid's HyperEVM. It covers the public API, the live account stream, EIP-712 intent signing for trading, deposits, withdrawals and PAPER staking, plus settlement math checked against mainnet.
 
@@ -18,6 +20,18 @@ npm install papertrade-sdk viem
 ```
 
 Works in Node 20+, browsers, Bun, Deno and Cloudflare Workers. ESM and CommonJS. `viem` is a peer dependency.
+
+## MCP server and AI connectors
+
+A hosted, read-only MCP server runs at `https://papertrade-sdk.pages.dev/mcp` (Streamable HTTP, stateless, no login). Seven tools let an assistant read markets, quote a position exactly (bust price and net PnL after impact and fees), inspect a wallet, check protocol health, compute PAPER mint, and build **unsigned** EIP-712 payloads. No tool signs, sends or places anything.
+
+```bash
+claude mcp add --transport http papertrade-sdk https://papertrade-sdk.pages.dev/mcp   # Claude Code
+codex mcp add papertrade-sdk --url https://papertrade-sdk.pages.dev/mcp               # Codex CLI
+gemini mcp add --transport http papertrade-sdk https://papertrade-sdk.pages.dev/mcp   # Gemini CLI
+```
+
+Cursor, VS Code, Windsurf, Zed, Cline, Goose, Continue, Claude Desktop, claude.ai, ChatGPT and the Claude and OpenAI APIs are covered in [Connect your AI](https://papertrade-sdk.pages.dev/docs/connect). Agent files: [llms.txt](https://papertrade-sdk.pages.dev/llms.txt), [llms-full.txt](https://papertrade-sdk.pages.dev/llms-full.txt), [OpenAPI 3.1](https://papertrade-sdk.pages.dev/openapi.json), [server card](https://papertrade-sdk.pages.dev/.well-known/mcp/server-card.json), [A2A agent card](https://papertrade-sdk.pages.dev/.well-known/agent-card.json). `server.json` is prepared for the MCP registry as `io.github.nirholas/papertrade-sdk`. The docs live in [`docs/`](docs) and build with `npm run build:site`.
 
 ## What is verified
 
