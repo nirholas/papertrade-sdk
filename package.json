@@ -1,0 +1,84 @@
+{
+  "name": "papertrade-sdk",
+  "version": "0.1.0",
+  "description": "Unofficial community TypeScript SDK for Papertrade (papertrade.xyz), the 1000x synthetic perps exchange on HyperEVM: public API client, live account stream, EIP-712 intent signing, deposits, withdrawals and verified settlement math.",
+  "license": "MIT",
+  "author": "nirholas",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "docs/PROTOCOL.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p site/functions",
+    "test": "vitest run",
+    "test:live": "PAPERTRADE_LIVE=1 vitest run test/live.test.ts",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
+    "build:site": "esbuild site/app.ts --bundle --format=esm --minify --target=es2022 --sourcemap --outfile=site/public/app.js",
+    "dev:site": "npm run build:site && cd site && wrangler pages dev --port 8788",
+    "deploy:site": "npm run build:site && cd site && wrangler pages deploy"
+  },
+  "keywords": [
+    "papertrade",
+    "hyperliquid",
+    "hyperevm",
+    "perps",
+    "perpetuals",
+    "eip-712",
+    "trading",
+    "sdk",
+    "defi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nirholas/papertrade-sdk.git"
+  },
+  "homepage": "https://github.com/nirholas/papertrade-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/nirholas/papertrade-sdk/issues"
+  },
+  "peerDependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261010.1",
+    "@types/node": "^22.20.5",
+    "esbuild": "^0.25.12",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "viem": "^2.57.4",
+    "vitest": "^2.1.9",
+    "wrangler": "^4.149.0"
+  },
+  "allowScripts": {
+    "workerd@1.20261006.1": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.27.7": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.21.5": true
+  }
+}

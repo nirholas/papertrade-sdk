@@ -1,0 +1,5 @@
+Contact: https://github.com/nirholas/papertrade-sdk/security/advisories/new
+Expires: 2027-10-10T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://papertrade-sdk.pages.dev/.well-known/security.txt
+Policy: https://github.com/nirholas/papertrade-sdk/blob/main/SECURITY.md

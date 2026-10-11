@@ -1,0 +1,6 @@
+name = "papertrade-sdk"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "public"
+
+[vars]
+PAPERTRADE_API_URL = "https://exchange.papertrade.xyz"

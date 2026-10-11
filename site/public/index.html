@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>papertrade-sdk: TypeScript SDK for Papertrade perps on HyperEVM</title>
+  <meta name="description" content="Unofficial TypeScript SDK for Papertrade, the 1000x synthetic perps exchange on HyperEVM. Public API, live account stream, EIP-712 trading intents, deposits, withdrawals and settlement math verified against mainnet.">
+  <link rel="canonical" href="https://papertrade-sdk.pages.dev/">
+  <meta property="og:title" content="papertrade-sdk">
+  <meta property="og:description" content="Read, stream, sign and settle Papertrade perps from TypeScript. Verified against mainnet.">
+  <meta property="og:url" content="https://papertrade-sdk.pages.dev/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="color-scheme" content="dark light">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310b981'/%3E%3Cpath d='M9 22l5-7 4 4 5-9' stroke='%23052e1f' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"papertrade-sdk","description":"Unofficial TypeScript SDK for the Papertrade synthetic perps exchange on HyperEVM.","codeRepository":"https://github.com/nirholas/papertrade-sdk","programmingLanguage":"TypeScript","license":"https://opensource.org/licenses/MIT","author":{"@type":"Person","name":"nirholas"}}
+  </script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <span class="brand">papertrade-sdk</span>
+    <nav aria-label="Primary">
+      <a href="#estimate-section">Estimator</a>
+      <a href="#install">Install</a>
+      <a href="#verified">Verified</a>
+      <a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+      <a href="https://www.npmjs.com/package/papertrade-sdk">npm</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <h1>Trade Papertrade perps from TypeScript.</h1>
+      <p class="lede">Read the market, stream any wallet, sign trading intents with session keys, deposit and withdraw, and know exactly what a close pays before you send it. Every formula is checked against mainnet.</p>
+      <p class="disclaimer"><strong>Unofficial.</strong> An independent community project, not affiliated with Papertrade. 1000x leverage can lose your whole margin in seconds.</p>
+      <p id="status" class="status" data-kind="wait" role="status" aria-live="polite">Loading live data</p>
+      <button id="retry" class="btn" type="button" hidden>Retry</button>
+    </section>
+
+    <section aria-labelledby="stats-h">
+      <h2 id="stats-h" class="visually-hidden">Protocol stats</h2>
+      <div class="stats">
+        <div class="stat"><span class="label">TVL</span><span id="stat-tvl" class="value"><span class="skeleton"></span></span></div>
+        <div class="stat"><span class="label">LP pool</span><span id="stat-lp" class="value"><span class="skeleton"></span></span></div>
+        <div class="stat"><span class="label">All-time volume</span><span id="stat-volume" class="value"><span class="skeleton"></span></span></div>
+        <div class="stat"><span class="label">PAPER per $1 lost</span><span id="stat-rate" class="value"><span class="skeleton"></span></span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="markets-h">
+      <h2 id="markets-h">Markets</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Market</th><th scope="col">Mid</th><th scope="col">Max leverage</th><th scope="col">Open interest (long / short)</th><th scope="col">Status</th></tr></thead>
+          <tbody id="markets"><tr><td colspan="5"><span class="skeleton wide"></span></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="estimate-section" aria-labelledby="estimate-h">
+      <h2 id="estimate-h">What would a close pay?</h2>
+      <p>This runs <code>estimateClose</code> and <code>liquidationPriceRaw</code> from the SDK in your browser, using live instrument parameters and the current mid as entry.</p>
+      <div class="estimator">
+        <form class="controls" onsubmit="return false">
+          <label>Market <select id="market"></select></label>
+          <label>Side <select id="side"><option value="long">Long</option><option value="short">Short</option></select></label>
+          <label>Margin (USD) <input id="margin" type="number" min="10" step="1" value="100" inputmode="decimal"></label>
+          <label>Leverage <output id="leverage-out">500x</output><input id="leverage" type="range" min="100" max="1000" step="10" value="500"></label>
+          <label>Price move <output id="move-out">+0.10%</output><input id="move" type="range" min="-0.2" max="0.5" step="0.005" value="0.1"></label>
+        </form>
+        <div id="estimate" class="result" aria-live="polite">Waiting for a live price.</div>
+      </div>
+    </section>
+
+    <section id="install" aria-labelledby="install-h">
+      <h2 id="install-h">Install</h2>
+      <div class="code"><pre><code>npm install papertrade-sdk viem</code></pre><button class="btn small" type="button" data-copy="npm install papertrade-sdk viem">Copy</button></div>
+      <div class="code"><pre><code>import { PapertradeClient, streamWallet } from 'papertrade-sdk';
+
+const client = new PapertradeClient();
+const { instruments } = await client.tradingState();
+
+streamWallet({
+  wallet: '0x...',
+  onState: (state) => console.log(state.positions.length, 'open positions'),
+});</code></pre></div>
+    </section>
+
+    <section id="verified" aria-labelledby="verified-h">
+      <h2 id="verified-h">Verified against mainnet</h2>
+      <ul class="checks">
+        <li><strong>Signatures.</strong> A real batched Close from HyperEVM recovers the trader's session key, and the SDK reproduces the relayer's intent ids.</li>
+        <li><strong>Staking domain.</strong> The PaperStaking EIP-712 domain hashes to the contract's on-chain separator.</li>
+        <li><strong>Liquidation prices.</strong> Exact on 205 of 205 sampled live positions.</li>
+        <li><strong>Closes.</strong> Reproduces 15 of 15 leaderboard wins, a losing close's PAPER basis, and a mainnet liquidation.</li>
+        <li><strong>Staking rewards.</strong> Matches <code>PaperStaking.pendingReward</code> to the wei.</li>
+      </ul>
+      <p><a href="https://github.com/nirholas/papertrade-sdk/blob/main/docs/PROTOCOL.md">Read the protocol reference</a> · <a href="/llms.txt">llms.txt for agents</a> · <a href="https://docs.papertrade.xyz">Official Papertrade docs</a></p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="related">Built on this SDK: <a href="https://github.com/nirholas/papertrade-ai">papertrade-ai</a> · <a href="https://papertrade-terminal.pages.dev">terminal</a> · <a href="https://papertrade-analytics.pages.dev">analytics</a> · <a href="https://papertrade-explorer.pages.dev">explorer</a> · <a href="https://papertrade-liquidations.pages.dev">liquidations</a> · <a href="https://papertrade-yield.pages.dev">yield</a> · <a href="https://github.com/nirholas/papertrade-alerts">alerts</a> · <a href="https://papertrade-copytrade.pages.dev">copytrade</a> · <a href="https://papertrade-x402.pages.dev">x402</a></p>
+    <p>MIT licensed. Not affiliated with Papertrade. Data from exchange.papertrade.xyz via a same-origin proxy.</p>
+  </footer>
+</body>
+</html>

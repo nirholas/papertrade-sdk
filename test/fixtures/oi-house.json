@@ -1,0 +1,17 @@
+{
+  "source": "GET /state/house/current head, recorded 2026-10-10 alongside oi-trading.json; Hyperliquid allMids recorded seconds later",
+  "head": [
+    1791666437692,
+    5154058.976763129,
+    1140855.824157258,
+    0,
+    2059832544.826598,
+    1775585408.4153576,
+    2135886302.7734463,
+    1774588726.9217846
+  ],
+  "hyperliquidMids": {
+    "BTC": "83034.5",
+    "ETH": "2509.85"
+  }
+}

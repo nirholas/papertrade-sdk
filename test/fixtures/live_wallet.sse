@@ -1,0 +1,8 @@
+: connected
+
+event: liveness
+data: {"heartbeatIntervalMs":10000}
+
+event: wallet
+data: {"address":"0x0871deb34bfd2052b1c10dc4f6c0912a2a47e927","indexedThroughBlock":48192224,"indexedThroughTimestamp":1791658860,"sessionKeys":[["0xec32445d300aa48c45fbe0356205f6bb09012b13","1794184554"]],"walletRevision":48192224,"queueRevision":"64","balance":"46921585599286051076220","queued":"0","locked":"20000000000000000000000","funds":{"reservedBalance":"0","reservedQueued":"0","availableBalance":"46921585599286051076220","availableQueued":"0"},"queueNodeCount":0,"consumableDebt":"0","paper":{"balance":"0","staked":"5907898593653126417497594","pendingBase":"0","rewardDebt":"47398729825429853961857"},"lifetime":{"depositedRaw":"100050667723000000000000","withdrawnRaw":"62377263408000000000000","realizedPnlRaw":"-17673404314735765375987","feesPaidRaw":"864831535027387812882","tradedNotionalRaw":"108725000000000000000000000","paperRewardsClaimedRaw":"46921585599021816452207"},"openPositions":[["760",0,true,false,"827365","10000000000000000000000",1000,"826931",1791641089000,"0x9bc1ecd935c0c5ad2fa66108c18b1b814e804737e8b81b8d02b12dec1f06a81d"],["578",1,true,false,"249675","10000000000000000000000",1000,"249546",1791641051000,"0x3b7641927010597c46c07028f07ad6312cb3e64a5d339f6a0f5237d6a321bf2c"]],"operations":[],"accountRevision":3}
+

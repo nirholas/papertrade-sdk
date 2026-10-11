@@ -1,0 +1,23 @@
+# papertrade-sdk
+
+> Unofficial TypeScript SDK for Papertrade (papertrade.xyz), the fully on-chain 1000x synthetic BTC/ETH perps exchange on Hyperliquid's HyperEVM (chain 999). It provides a read API client, a live wallet stream, EIP-712 intent signing (session keys, open, close, withdraw, PAPER staking), deposit builders and settlement math verified against mainnet.
+
+Install: `npm install papertrade-sdk viem`. API base: https://exchange.papertrade.xyz (no CORS, so browsers need a same-origin proxy). The exchange EIP-712 domain name is the literal string "String".
+
+## Docs
+
+- [README](https://github.com/nirholas/papertrade-sdk#readme): install, quick start, trading, deposits, API surface
+- [Protocol reference](https://github.com/nirholas/papertrade-sdk/blob/main/docs/PROTOCOL.md): endpoints, schemas, intent ids, verified settlement math, staking, deposits, withdrawals, errors
+- [AGENTS.md](https://github.com/nirholas/papertrade-sdk/blob/main/AGENTS.md): rules for agents building with or changing the SDK
+
+## Examples
+
+- [market.ts](https://github.com/nirholas/papertrade-sdk/blob/main/examples/market.ts): live market overview
+- [watch-wallet.ts](https://github.com/nirholas/papertrade-sdk/blob/main/examples/watch-wallet.ts): stream positions with distance to liquidation
+- [estimate.ts](https://github.com/nirholas/papertrade-sdk/blob/main/examples/estimate.ts): what a close pays after impact and fees
+- [trade.ts](https://github.com/nirholas/papertrade-sdk/blob/main/examples/trade.ts): session-key trading, dry run by default
+
+## Optional
+
+- [Official Papertrade docs](https://docs.papertrade.xyz)
+- [Papertrade app](https://papertrade.xyz)
