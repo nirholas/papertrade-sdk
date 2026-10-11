@@ -2,7 +2,7 @@
   "name": "papertrade-sdk",
   "version": "0.1.0",
   "description": "Unofficial community TypeScript SDK for Papertrade (papertrade.xyz), the 1000x synthetic perps exchange on HyperEVM: public API client, live account stream, EIP-712 intent signing, deposits, withdrawals and verified settlement math.",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "nirholas",
   "type": "module",
   "sideEffects": false,

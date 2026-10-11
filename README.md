@@ -197,4 +197,4 @@ Built on this SDK:
 
 ## License
 
-MIT
+Apache-2.0
