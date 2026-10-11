@@ -33,6 +33,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "prepare": "tsup",
     "typecheck": "tsc --noEmit && tsc --noEmit -p site/functions",
     "test": "vitest run",
     "test:live": "PAPERTRADE_LIVE=1 vitest run test/live.test.ts",
