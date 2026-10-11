@@ -1,6 +1,6 @@
 {
   "name": "papertrade-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Unofficial community TypeScript SDK for Papertrade (papertrade.xyz), the 1000x synthetic perps exchange on HyperEVM: public API client, live account stream, EIP-712 intent signing, deposits, withdrawals and verified settlement math.",
   "license": "Apache-2.0",
   "author": "nirholas",
@@ -38,9 +38,10 @@
     "test": "vitest run",
     "test:live": "PAPERTRADE_LIVE=1 vitest run test/live.test.ts",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
-    "build:site": "esbuild site/app.ts --bundle --format=esm --minify --target=es2022 --sourcemap --outfile=site/public/app.js",
+    "build:site": "npm run build:app && node scripts/build-docs.mjs && node scripts/build-discovery.mjs",
     "dev:site": "npm run build:site && cd site && wrangler pages dev --port 8788",
-    "deploy:site": "npm run build:site && cd site && wrangler pages deploy"
+    "deploy:site": "npm run build:site && cd site && wrangler pages deploy",
+    "build:app": "esbuild site/app.ts --bundle --format=esm --minify --target=es2022 --sourcemap --outfile=site/public/app.js"
   },
   "keywords": [
     "papertrade",
@@ -61,7 +62,14 @@
     "cloudflare-workers",
     "bun",
     "deno",
-    "ai-agents"
+    "ai-agents",
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "claude",
+    "chatgpt",
+    "codex",
+    "agent-card"
   ],
   "repository": {
     "type": "git",
@@ -78,6 +86,7 @@
     "@cloudflare/workers-types": "^5.20261010.1",
     "@types/node": "^22.20.5",
     "esbuild": "^0.25.12",
+    "marked": "^15.0.12",
     "tsup": "^8.5.1",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
@@ -91,5 +100,6 @@
     "esbuild@0.27.7": true,
     "esbuild@0.28.2": true,
     "esbuild@0.21.5": true
-  }
+  },
+  "mcpName": "io.github.nirholas/papertrade-sdk"
 }

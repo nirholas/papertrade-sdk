@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDK reference | papertrade-sdk docs</title>
+<meta name="description" content="The public surface of papertrade-sdk grouped by module, with the read client methods and the REST paths they call.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/reference">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/reference.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="SDK reference | papertrade-sdk docs">
+<meta property="og:description" content="The public surface of papertrade-sdk grouped by module, with the read client methods and the REST paths they call.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/reference">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"SDK reference","description":"The public surface of papertrade-sdk grouped by module, with the read client methods and the REST paths they call.","url":"https://papertrade-sdk.pages.dev/docs/reference","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference" aria-current="page">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>SDK reference</h1>
+<p>Everything is exported from the package root: <code>import { ... } from &#39;papertrade-sdk&#39;</code>.</p>
+<h2 id="modules">Modules<a class="anchor" href="#modules" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Exports</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Client</td>
+<td><code>PapertradeClient</code> (every read endpoint, <code>submitIntent</code>, <code>cancelIntent</code>, <code>retryOnward</code>, <code>checkDepositAddress</code>), <code>HttpTransport</code>, <code>PapertradeApiError</code></td>
+</tr>
+<tr>
+<td>Trading</td>
+<td><code>PapertradeTrader</code>, <code>PreparedIntent</code>, <code>validateOpen</code>, <code>withdrawalActivationFee</code>, <code>MIN_WITHDRAWAL_USDC</code></td>
+</tr>
+<tr>
+<td>Signing</td>
+<td><code>signIntent</code>, <code>inspectSignedIntent</code>, <code>hashIntent</code>, <code>computeIntentId</code>, <code>exchangeDomain</code>, <code>paperStakingDomain</code>, <code>cancellationDomain</code>, <code>domainFor</code>, <code>toWireMessage</code>, <code>PAPERTRADE_TYPES</code></td>
+</tr>
+<tr>
+<td>Session</td>
+<td><code>createSessionKey</code>, <code>restoreSessionKey</code>, <code>isSessionKeyActive</code></td>
+</tr>
+<tr>
+<td>Live</td>
+<td><code>streamWallet</code>, <code>fetchWalletState</code>, <code>decodeWalletSnapshot</code>, <code>applyWalletPatch</code>, <code>SseParser</code></td>
+</tr>
+<tr>
+<td>Math</td>
+<td><code>estimateClose</code>, <code>liquidationPriceRaw</code>, <code>unrealizedPnlUsd</code>, <code>distanceToLiquidation</code>, <code>openInterestUsd</code>, <code>notionalToQuantityRaw</code>, <code>paperMintRate</code>, <code>estimatePaperMinted</code>, <code>pendingStakingRewardRaw</code></td>
+</tr>
+<tr>
+<td>Prices</td>
+<td><code>planPriceTiles</code>, <code>mergePriceTiles</code>, <code>toOhlc</code>, <code>fetchCandles</code>, <code>fetchDayContext</code></td>
+</tr>
+<tr>
+<td>Units</td>
+<td><code>usdToWad</code>, <code>wadToNumber</code>, <code>wadToString</code>, <code>parseUnits</code>, <code>formatUnits</code>, <code>priceFromRaw</code>, <code>priceToRaw</code>, <code>formatUsdCompact</code></td>
+</tr>
+<tr>
+<td>Deposits</td>
+<td><code>buildHyperEvmDeposit</code>, <code>buildHyperCoreDeposit</code></td>
+</tr>
+<tr>
+<td>Constants</td>
+<td><code>MAINNET</code>, <code>INTENT_TTL_SECONDS</code>, <code>MAX_CLOSE_BATCH</code>, <code>MIN_DEPOSIT_USDC</code></td>
+</tr>
+</tbody></table>
+<h2 id="client-options">Client options<a class="anchor" href="#client-options" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-ts">new PapertradeClient({
+  baseUrl: &#39;https://exchange.papertrade.xyz&#39;, // or a same-origin proxy such as /api/papertrade
+  fetch,            // custom fetch (tests, Workers, instrumentation)
+  retries: 3,       // 429 / 5xx / network errors, honoring Retry-After
+  timeoutMs: 20000,
+  clientBuild: &#39;my-app&#39;,
+  headers: {},
+});
+</code></pre>
+<p>Query strings are canonical (sorted, unique, no unknown keys) because the API rejects anything else. Always go through the client. Errors are <code>PapertradeApiError</code> with <code>status</code>, <code>code</code>, <code>reason</code> and a plain-language message.</p>
+<h2 id="read-methods">Read methods<a class="anchor" href="#read-methods" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>protocolSummary()</code></td>
+<td><code>GET /query/protocol/summary</code></td>
+</tr>
+<tr>
+<td><code>protocolHistory(interval)</code></td>
+<td><code>GET /query/protocol/history</code></td>
+</tr>
+<tr>
+<td><code>marketStats()</code>, <code>queueSummary()</code></td>
+<td><code>GET /query/protocol/market-stats</code>, <code>/query/protocol/queue-summary</code></td>
+</tr>
+<tr>
+<td><code>recentTrades()</code>, <code>paperActivity()</code></td>
+<td><code>GET /query/protocol/trades/recent</code>, <code>/query/protocol/paper/activity</code></td>
+</tr>
+<tr>
+<td><code>notices()</code>, <code>ready()</code>, <code>relayerHealth()</code></td>
+<td><code>GET /query/notices</code>, <code>/query/ready</code>, <code>/relayer/health</code></td>
+</tr>
+<tr>
+<td><code>tradingState()</code></td>
+<td><code>GET /state/trading</code> (decoded to bigint fields)</td>
+</tr>
+<tr>
+<td><code>priceHistory(request)</code></td>
+<td><code>GET /query/markets/{id}/price-history</code>, planned into the required tile grid and merged</td>
+</tr>
+<tr>
+<td><code>liquidationMap(id, range)</code></td>
+<td><code>GET /query/markets/{id}/liquidation-map</code></td>
+</tr>
+<tr>
+<td><code>positionTopology()</code>, <code>houseDelta(coin)</code>, <code>houseCurrent()</code></td>
+<td><code>GET /state/protocol/position-topology</code>, <code>/state/house/delta</code>, <code>/state/house/current</code></td>
+</tr>
+<tr>
+<td><code>leaderboard(options)</code>, <code>leaderboardPlacement()</code>, <code>leaderboardPositions()</code></td>
+<td><code>GET /state/leaderboard/...</code></td>
+</tr>
+<tr>
+<td><code>accountTrades/Cashflows/Staking/Queue(address)</code></td>
+<td><code>GET /query/accounts/{address}/...</code> (cursor pages; use <code>paginate</code>)</td>
+</tr>
+<tr>
+<td><code>portfolioHistory()</code>, <code>accountFunding()</code>, <code>queueRank()</code></td>
+<td>per-account reads</td>
+</tr>
+<tr>
+<td><code>submitIntent()</code>, <code>cancelIntent()</code>, <code>retryOnward()</code>, <code>checkDepositAddress()</code></td>
+<td>the only writes: already-signed intents and the deposit registration</td>
+</tr>
+</tbody></table>
+<h2 id="live-stream">Live stream<a class="anchor" href="#live-stream" aria-label="Link to this section">#</a></h2>
+<p><code>streamWallet({ wallet, baseUrl?, fetch?, onState, onStatus?, signal? })</code> subscribes to <code>/state/user/live</code> (server-sent events), applies revision-checked patches, reconnects with backoff, honors <code>Retry-After</code>, and re-snapshots when it falls out of sync. It returns a stop function. <code>fetchWalletState(address)</code> resolves with the first full snapshot and closes the stream.</p>
+<h2 id="trader">Trader<a class="anchor" href="#trader" aria-label="Link to this section">#</a></h2>
+<p><code>PapertradeTrader</code> has a <code>prepare*</code> method (signs, does not send, returns a <code>summary</code>) and a submitting counterpart for each action: <code>registerSession</code>, <code>openPosition</code>, <code>closePositions</code>, <code>cancel</code>, <code>withdraw</code>, <code>stake</code>, <code>unstake</code>, <code>claim</code>. <code>validateOpen(params, tradingState)</code> throws a plain-language error when the relayer would reject an open.</p>
+<h2 id="typed-data-without-a-key">Typed data without a key<a class="anchor" href="#typed-data-without-a-key" aria-label="Link to this section">#</a></h2>
+<p><code>toWireMessage</code>, <code>domainFor</code> and <code>hashIntent</code> build and hash any intent without a signer. The MCP tool <code>papertrade_build_typed_data</code> is a wrapper around exactly these.</p>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/concepts"><small>Previous</small>Concepts</a><a class="next" href="/docs/mcp"><small>Next</small>MCP server</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/reference.md">/docs/reference.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#modules">Modules</a><a class="l2" href="#client-options">Client options</a><a class="l2" href="#read-methods">Read methods</a><a class="l2" href="#live-stream">Live stream</a><a class="l2" href="#trader">Trader</a><a class="l2" href="#typed-data-without-a-key">Typed data without a key</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

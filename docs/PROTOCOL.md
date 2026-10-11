@@ -1,3 +1,8 @@
+---
+title: Protocol reference
+description: Endpoints, SSE stream, EIP-712 schemas, intent ids, settlement math, staking and withdrawals, verified against mainnet.
+order: 12
+---
 # Papertrade protocol reference (unofficial)
 
 This is an independent, community-written reference for building on [Papertrade](https://papertrade.xyz). It is not affiliated with or endorsed by the Papertrade team. The official docs live at [docs.papertrade.xyz](https://docs.papertrade.xyz).

@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protocol reference | papertrade-sdk docs</title>
+<meta name="description" content="Endpoints, SSE stream, EIP-712 schemas, intent ids, settlement math, staking and withdrawals, verified against mainnet.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/protocol">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/protocol.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Protocol reference | papertrade-sdk docs">
+<meta property="og:description" content="Endpoints, SSE stream, EIP-712 schemas, intent ids, settlement math, staking and withdrawals, verified against mainnet.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/protocol">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Protocol reference","description":"Endpoints, SSE stream, EIP-712 schemas, intent ids, settlement math, staking and withdrawals, verified against mainnet.","url":"https://papertrade-sdk.pages.dev/docs/protocol","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol" aria-current="page">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>Papertrade protocol reference (unofficial)</h1>
+<p>This is an independent, community-written reference for building on <a href="https://papertrade.xyz">Papertrade</a>. It is not affiliated with or endorsed by the Papertrade team. The official docs live at <a href="https://docs.papertrade.xyz">docs.papertrade.xyz</a>.</p>
+<p>Every number and formula on this page was checked against live mainnet data. The checks run in this repository&#39;s test suite (<code>npm test</code> for recorded fixtures, <code>npm run test:live</code> against production). Where something has not been verified, the page says so.</p>
+<ul>
+<li><a href="#what-papertrade-is">What Papertrade is</a></li>
+<li><a href="#deployment">Deployment</a></li>
+<li><a href="#units">Units</a></li>
+<li><a href="#read-api">Read API</a></li>
+<li><a href="#live-wallet-stream">Live wallet stream</a></li>
+<li><a href="#writing-signed-intents">Writing: signed intents</a></li>
+<li><a href="#eip-712-schemas">EIP-712 schemas</a></li>
+<li><a href="#intent-ids-and-nonces">Intent ids and nonces</a></li>
+<li><a href="#settlement-math">Settlement math</a></li>
+<li><a href="#paper-and-staking">PAPER and staking</a></li>
+<li><a href="#deposits">Deposits</a></li>
+<li><a href="#withdrawals">Withdrawals</a></li>
+<li><a href="#errors">Errors</a></li>
+</ul>
+<h2 id="what-papertrade-is">What Papertrade is<a class="anchor" href="#what-papertrade-is" aria-label="Link to this section">#</a></h2>
+<p>Papertrade is a fully on-chain synthetic perpetuals exchange on Hyperliquid&#39;s HyperEVM (chain 999). It offers BTC and ETH, up to 1000x leverage, and one-click market opens and closes. There is no order book.</p>
+<ul>
+<li><strong>Pricing.</strong> Every trade is a synthetic swap against the protocol LP at Hyperliquid&#39;s BBO mid, read through a HyperCore precompile. There is no spread, slippage or funding.</li>
+<li><strong>Fees.</strong> There is no fee on notional. Winning closes pay an asymmetric impact haircut on the gain, then a 2% win fee. Losing closes pay exactly the loss.</li>
+<li><strong>The LP.</strong> The LP starts at $0 and grows from trader losses (the Martingaler design). When the LP cannot cover a win, the payout joins a FIFO queue, and later losses pay it.</li>
+<li><strong>PAPER.</strong> Losses mint PAPER, the LP fee-claim token. Staked PAPER earns USDC.</li>
+<li><strong>Balances.</strong> USDC lives on HyperCore. Trading state lives in the Exchange contract on HyperEVM.</li>
+<li><strong>Relayer.</strong> Traders sign EIP-712 intents. A relayer batches them on chain through a BatchExecutor contract.</li>
+</ul>
+<h2 id="deployment">Deployment<a class="anchor" href="#deployment" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chain</td>
+<td>HyperEVM mainnet, chain id <code>999</code></td>
+</tr>
+<tr>
+<td>RPC</td>
+<td><code>https://rpc.hyperliquid.xyz/evm</code> (fallback <code>https://rpc.hypurrscan.io</code>)</td>
+</tr>
+<tr>
+<td>Explorer</td>
+<td><code>https://hyperevmscan.io</code></td>
+</tr>
+<tr>
+<td>Papertrade API</td>
+<td><code>https://exchange.papertrade.xyz</code></td>
+</tr>
+<tr>
+<td>Exchange</td>
+<td><code>0x6cd5661646289fb6e65ea5c032310fded797d0a2</code></td>
+</tr>
+<tr>
+<td>BatchExecutor</td>
+<td><code>0x233ff29b239abc1d7748605da9b205c3e008626e</code></td>
+</tr>
+<tr>
+<td>PAPER token</td>
+<td><code>0xe40f17915daa230324030003a197cdaef2261c0e</code></td>
+</tr>
+<tr>
+<td>PaperStaking</td>
+<td><code>0xaad6c7b0cc3014fc80ffedae0ed7ce5967b0f016</code></td>
+</tr>
+<tr>
+<td>DepositProxyFactory</td>
+<td><code>0x1629b7d46bef6e13ff754174fc9f32dea309b38f</code></td>
+</tr>
+<tr>
+<td>CoreDepositWallet</td>
+<td><code>0x6b9e773128f453f5c2c60935ee2de2cbc5390a24</code></td>
+</tr>
+<tr>
+<td>USDC (HyperEVM, 6 dp)</td>
+<td><code>0xb88339cb7199b77e23db6e890353e22632ba630f</code></td>
+</tr>
+<tr>
+<td>Governance multisig</td>
+<td><code>0x696292762fd5ac3677a45edbe54eaece4194d1f6</code></td>
+</tr>
+<tr>
+<td>Timelock</td>
+<td><code>0xb915fa41e824d6aa31bb833ee81220c0f2c8ea0f</code></td>
+</tr>
+</tbody></table>
+<p>Instruments:</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Symbol</th>
+<th>Hyperliquid asset index</th>
+<th>Price scale</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>BTC</td>
+<td>0</td>
+<td>10 (raw <code>829915</code> = $82,991.5)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>ETH</td>
+<td>1</td>
+<td>100 (raw <code>249565</code> = $2,495.65)</td>
+</tr>
+</tbody></table>
+<p>Limits come from <code>/state/trading</code> at runtime: minimum margin $10, minimum notional $10,000, maximum notional per position $10M, and maximum leverage 1000x.</p>
+<h2 id="units">Units<a class="anchor" href="#units" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>USD amounts</strong> (balances, margin, PnL) are 18-decimal integers serialized as decimal strings (&quot;wad&quot;).</li>
+<li><strong>USDC on chain</strong> has 6 decimals. Convert with <code>wad = usdc * 10^12</code>.</li>
+<li><strong>Prices</strong> are integers in raw units: <code>price = raw / priceScale</code>.</li>
+<li><strong>PAPER</strong> has 18 decimals.</li>
+</ul>
+<h2 id="read-api">Read API<a class="anchor" href="#read-api" aria-label="Link to this section">#</a></h2>
+<p>Base URL <code>https://exchange.papertrade.xyz</code>. Every response is JSON.</p>
+<ul>
+<li><strong>Canonical query strings.</strong> The API rejects a query string that is not canonical. Each parameter may appear once, sorted by name, URLSearchParams-encoded, with no unknown keys. <code>canonicalQuery()</code> builds one.</li>
+<li><strong>No CORS headers.</strong> Browser apps on another origin need a same-origin proxy. Every papertrade-* site ships one as a Cloudflare Pages Function.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>What it returns</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET /state/trading</code></td>
+<td>Trading state: pause flag, minimums, <code>accRewardPerShareRaw</code>, the instrument tuples and intake. Decode with <code>decodeTradingState</code>.</td>
+</tr>
+<tr>
+<td><code>GET /query/protocol/summary</code></td>
+<td>TVL, LP, reserve, queue, volume, open count, fees, and the PAPER supply, staked amount, tracked LP and tail progress.</td>
+</tr>
+<tr>
+<td><code>GET /query/protocol/history?interval=1d|1h</code></td>
+<td>Columnar TVL, volume, PnL, users, liquidations, trades and PAPER series.</td>
+</tr>
+<tr>
+<td><code>GET /query/protocol/market-stats</code></td>
+<td>24h volume per market.</td>
+</tr>
+<tr>
+<td><code>GET /query/protocol/queue-summary</code></td>
+<td>Payout queue total, count, largest and front.</td>
+</tr>
+<tr>
+<td><code>GET /query/protocol/trades/recent</code></td>
+<td>The latest opens and closes across the protocol.</td>
+</tr>
+<tr>
+<td><code>GET /query/protocol/paper/activity</code></td>
+<td>Recent PAPER mints, stakes and claims.</td>
+</tr>
+<tr>
+<td><code>GET /query/markets/{id}/price-history?fromMs&amp;intervalMs&amp;toMs</code></td>
+<td>Exactly one price tile (see below).</td>
+</tr>
+<tr>
+<td><code>GET /query/markets/{id}/liquidation-map?range=5</code></td>
+<td>Long and short notional by bust-price bucket.</td>
+</tr>
+<tr>
+<td><code>GET /state/protocol/position-topology</code></td>
+<td>Aggregate open-position topology.</td>
+</tr>
+<tr>
+<td><code>GET /state/house/current</code>, <code>GET /state/house/delta?coin=BTC</code></td>
+<td>House (LP) exposure. <code>current</code> is columnar: <code>head</code> is the latest <code>[timeMs, lp, pnl, q, bl, bs, el, es]</code> (USD: LP equity, trader PnL, queue, then BTC long, BTC short, ETH long and ETH short open notional), and <code>heads</code> maps an interval in ms (<code>1000</code>, <code>60000</code>, <code>3600000</code>, <code>86400000</code>) to <code>{baseTimeMs, timeOffsetsMs[], columns}</code>.</td>
+</tr>
+<tr>
+<td><code>GET /state/leaderboard/accounts?page&amp;pageSize&amp;sortDir&amp;sortKey&amp;window</code></td>
+<td>Leaderboard. The response key is <code>accounts</code>.</td>
+</tr>
+<tr>
+<td><code>GET /state/leaderboard/accounts/{wallet}?window=24h</code></td>
+<td>One wallet&#39;s placement.</td>
+</tr>
+<tr>
+<td><code>GET /state/leaderboard/positions?window=24h|all</code></td>
+<td>Top settled positions (<code>rows</code>).</td>
+</tr>
+<tr>
+<td><code>GET /query/accounts/{wallet}/trades?cursor&amp;filter=all|losses</code></td>
+<td>Closed trades, 75 per page, with <code>adjustedPnlRaw</code>, <code>userPaidFeeRaw</code>, <code>paperMintedRaw</code> and <code>paperMintBasisRaw</code>. <code>kind</code> is <code>PositionClosed</code> or <code>Liquidated</code>.</td>
+</tr>
+<tr>
+<td><code>GET /query/accounts/{wallet}/cashflows</code>, <code>/staking</code>, <code>/queue</code></td>
+<td>Paged account histories.</td>
+</tr>
+<tr>
+<td><code>GET /query/accounts/{wallet}/portfolio-history?range=1h|1d|1w|all</code></td>
+<td>Equity and PnL series.</td>
+</tr>
+<tr>
+<td><code>GET /query/accounts/{wallet}/funding</code></td>
+<td>Funding items plus <code>coreAccount</code> (whether a HyperCore account exists).</td>
+</tr>
+<tr>
+<td><code>GET /queue-rank/accounts/{wallet}</code></td>
+<td>Queue position.</td>
+</tr>
+<tr>
+<td><code>GET /relayer/health</code>, <code>GET /query/ready</code></td>
+<td>Health.</td>
+</tr>
+<tr>
+<td><code>POST /intents</code></td>
+<td>Submit a signed intent (see below).</td>
+</tr>
+<tr>
+<td><code>POST /intents/{intentId}/cancel</code></td>
+<td>Cancel a queued intent.</td>
+</tr>
+<tr>
+<td><code>POST /funding/deposits/check</code></td>
+<td>Ask the relayer to sweep a deposit address.</td>
+</tr>
+</tbody></table>
+<h3 id="price-tiles">Price tiles<a class="anchor" href="#price-tiles" aria-label="Link to this section">#</a></h3>
+<p>Price history is served as fixed tiles at three resolutions, and a request must cover exactly one tile:</p>
+<table>
+<thead>
+<tr>
+<th>Interval</th>
+<th>Tile length</th>
+<th>Retained for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>125 ms</td>
+<td>1 minute</td>
+<td>5 minutes</td>
+</tr>
+<tr>
+<td>1 s</td>
+<td>15 minutes</td>
+<td>3 hours</td>
+</tr>
+<tr>
+<td>1 min</td>
+<td>6 hours</td>
+<td>forever</td>
+</tr>
+</tbody></table>
+<p><code>planPriceTiles()</code> picks the finest tier whose retention still covers the window and keeps it under 5000 points. It returns the aligned tile requests. <code>mergePriceTiles()</code> joins the responses, and <code>toOhlc()</code> buckets them into candles.</p>
+<h2 id="live-wallet-stream">Live wallet stream<a class="anchor" href="#live-wallet-stream" aria-label="Link to this section">#</a></h2>
+<p><code>GET /state/user/live?wallet=0x...</code> with <code>Accept: text/event-stream</code> streams a wallet&#39;s state.</p>
+<ul>
+<li><strong><code>liveness</code></strong> events carry <code>{heartbeatIntervalMs}</code>. Treat 3x that interval (capped at 45 s) of silence as a dead connection.</li>
+<li><strong>The first <code>wallet</code> event is a full snapshot.</strong> It carries balances, <code>funds</code>, <code>paper</code> {balance, staked, pendingBase, rewardDebt}, <code>lifetime</code> totals, <code>sessionKeys</code> [[key, expiry]], <code>openPositions</code> and <code>operations</code>.</li>
+<li><strong>Later <code>wallet</code> events are patches</strong> carrying <code>baseAccountRevision</code>. A patch applies only when <code>baseAccountRevision</code> equals the current <code>accountRevision</code>. Anything else means you are out of sync: reconnect and take a fresh snapshot.</li>
+</ul>
+<p>Position tuple: <code>[positionId, instrumentId, isLong, useDebt, entryPriceRaw, marginRaw, leverage, bustPriceRaw, openedAtMs, intentId]</code>.</p>
+<p><code>streamWallet()</code> implements all of this, including reconnect with backoff. <code>fetchWalletState()</code> resolves the first snapshot.</p>
+<h2 id="writing-signed-intents">Writing: signed intents<a class="anchor" href="#writing-signed-intents" aria-label="Link to this section">#</a></h2>
+<p>Every write is an EIP-712 message signed off-chain and posted to <code>POST /intents</code> as <code>{ action, signed, ...extra }</code>.</p>
+<ul>
+<li><strong><code>signed</code></strong> is the message in wire form: uints become decimal strings, addresses and bytes become lowercase hex, bools stay bools. <code>v</code>, <code>r</code> and <code>s</code> are added alongside.</li>
+<li><strong>The relayer</strong> recomputes the intent id, admits or rejects the intent, and batches it on chain.</li>
+<li><strong>The receipt</strong> echoes <code>action</code> and <code>intentId</code>. A client should check both match.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>action</th>
+<th>Primary type</th>
+<th>Domain</th>
+<th>Signed by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>registerSessionKey</code></td>
+<td>RegisterSessionKey</td>
+<td>exchange</td>
+<td>wallet</td>
+</tr>
+<tr>
+<td><code>openPosition</code></td>
+<td>OpenPosition</td>
+<td>exchange</td>
+<td>session key</td>
+</tr>
+<tr>
+<td><code>closePositions</code></td>
+<td>Close</td>
+<td>exchange</td>
+<td>session key</td>
+</tr>
+<tr>
+<td><code>withdrawToCore</code></td>
+<td>WithdrawToCore</td>
+<td>exchange</td>
+<td>wallet</td>
+</tr>
+<tr>
+<td><code>paperStake</code> / <code>paperUnstake</code> / <code>paperClaim</code></td>
+<td>Stake / Unstake / Claim</td>
+<td>PaperStaking</td>
+<td>wallet</td>
+</tr>
+<tr>
+<td><code>paperDistribute</code></td>
+<td>Distribute</td>
+<td>PaperStaking</td>
+<td>relayer keeper only: the official client never submits it, and the relayer rejects user-signed Distribute intents with HTTP 400</td>
+</tr>
+<tr>
+<td>cancel (<code>POST /intents/{id}/cancel</code>)</td>
+<td>CancelIntent</td>
+<td>cancellation</td>
+<td>the intent&#39;s signer</td>
+</tr>
+</tbody></table>
+<h3 id="session-keys">Session keys<a class="anchor" href="#session-keys" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Registering.</strong> The wallet signs <code>RegisterSessionKey</code> once for a locally generated key, with <code>feeAddress = 0x0</code> and an expiry up to 30 days out.</li>
+<li><strong>What a key can do.</strong> It signs opens and closes with no wallet prompt.</li>
+<li><strong>What it cannot do.</strong> It cannot withdraw, stake, unstake or claim.</li>
+<li><strong>Revoking.</strong> Revoke a key on chain with <code>revokeSessionKey</code> from the wallet.</li>
+<li><strong>Intent lifetime.</strong> Every intent&#39;s <code>deadline</code> is at most one hour out.</li>
+</ul>
+<p>Verified on mainnet:</p>
+<ul>
+<li>A Close intent signed by a key the wallet never registered is rejected with <code>403 unauthorized_intent</code>. The relayer accepts the wire format and checks authorization.</li>
+<li>A real batched Close from tx <code>0xde30ba04...f1d9</code> recovers the trader&#39;s registered session key under the exchange domain below.</li>
+</ul>
+<h3 id="opening">Opening<a class="anchor" href="#opening" aria-label="Link to this section">#</a></h3>
+<p><code>OpenPosition.size</code> is the <strong>margin</strong> in wad (not notional). <code>leverage</code> is an integer.</p>
+<p><code>PapertradeTrader.validateOpen()</code> checks the same limits the relayer enforces, so the user gets a plain-language error before signing. It checks:</p>
+<ul>
+<li>whether trading or the market is paused,</li>
+<li>whether the intake action is enabled,</li>
+<li>maximum leverage,</li>
+<li>minimum margin and minimum notional,</li>
+<li>maximum position size,</li>
+<li>the side&#39;s OI cap, when you pass <code>markPriceRaw</code> (OI and caps are base-asset quantities, so the check needs a price).</li>
+</ul>
+<h3 id="closing">Closing<a class="anchor" href="#closing" aria-label="Link to this section">#</a></h3>
+<p><code>Close.positionIds</code> takes up to 12 ids per intent. The SDK dedupes ids and splits larger closes into batches.</p>
+<h2 id="eip-712-schemas">EIP-712 schemas<a class="anchor" href="#eip-712-schemas" aria-label="Link to this section">#</a></h2>
+<p>Domains (all <code>version</code> fields are strings):</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>name</th>
+<th>version</th>
+<th>verifyingContract</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>exchange</td>
+<td><code>String</code></td>
+<td><code>1</code></td>
+<td>Exchange</td>
+</tr>
+<tr>
+<td>PaperStaking</td>
+<td><code>PaperStaking</code></td>
+<td><code>1</code></td>
+<td>PaperStaking</td>
+</tr>
+<tr>
+<td>cancellation</td>
+<td><code>PaperTrade Intent Cancel</code></td>
+<td><code>2</code></td>
+<td>Exchange</td>
+</tr>
+</tbody></table>
+<p>The exchange domain name is literally <code>String</code>. A mainnet Close signature recovers to the trader&#39;s session key only under that name, and the test suite asserts that other names fail. The PaperStaking domain hashes to <code>0x71706d56c8b436981e93987cd97df512528491b243c6d8d1614cad52659e7eb0</code>, the value <code>PaperStaking.DOMAIN_SEPARATOR()</code> returns on chain.</p>
+<pre><code>RegisterSessionKey(address user,address key,uint64 expiry,address feeAddress,uint256 nonce,uint64 deadline)
+OpenPosition(address user,uint32 instrumentId,bool isLong,uint128 size,uint32 leverage,bool useDebt,uint256 nonce,uint64 deadline)
+Close(address user,uint256[] positionIds,uint256 nonce,uint64 deadline)
+WithdrawToCore(address user,uint256 amount,uint256 nonce,uint64 deadline)
+Stake(address user,uint256 amount,uint256 nonce,uint64 deadline)
+Unstake(address user,uint256 amount,uint256 nonce,uint64 deadline)
+Claim(address user,uint256 nonce,uint64 deadline)
+Distribute(address user,uint256 nonce,uint64 deadline)
+CancelIntent(address user,bytes32 intentId,uint256 deadline)
+</code></pre>
+<h2 id="intent-ids-and-nonces">Intent ids and nonces<a class="anchor" href="#intent-ids-and-nonces" aria-label="Link to this section">#</a></h2>
+<pre><code>digest   = EIP-712 hash of the message under its domain
+intentId = keccak256( keccak256(&quot;papertrade:intent-id:v2&quot;) ++ digest ++ signerAddress )
+</code></pre>
+<p>This reproduces the intent ids the relayer records for mainnet intents.</p>
+<p>Nonces only need to be unique per (user, lane):</p>
+<ul>
+<li><strong>Lanes.</strong> PAPER actions use the <code>paper</code> lane. Everything else uses the <code>session</code> lane.</li>
+<li><strong>Seeding.</strong> The official client starts each lane at a random 24-bit value times 256 and increments it by one per intent.</li>
+<li><strong>Persistence.</strong> <code>NonceAllocator</code> does the same and persists through any <code>localStorage</code>-shaped store.</li>
+</ul>
+<h2 id="settlement-math">Settlement math<a class="anchor" href="#settlement-math" aria-label="Link to this section">#</a></h2>
+<p>Here <code>e</code> is the entry price (raw), <code>x</code> the exit price (raw), <code>L</code> the leverage, and <code>notional = margin * L</code>. Instrument parameters come from <code>/state/trading</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Tuple index</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>12</td>
+<td><code>rateMultiplier</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>positionMultiplier</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>maxLeverage</code></td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>maxPosition</code></td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>bustBuffer</code></td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>baseRate</code></td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>referenceNotional</code></td>
+</tr>
+<tr>
+<td>19-22</td>
+<td>long/short OI and caps, as base-asset quantities (wad BTC or ETH, not USD). OI times the mark equals the house <code>bl</code>/<code>bs</code>/<code>el</code>/<code>es</code> notional; <code>openInterestUsd()</code> converts.</td>
+</tr>
+</tbody></table>
+<p>All are wad except <code>maxLeverage</code>.</p>
+<h3 id="bust-liquidation-price">Bust (liquidation) price<a class="anchor" href="#bust-liquidation-price" aria-label="Link to this section">#</a></h3>
+<p>The bust price is exact in integer math and matches all 205 sampled live positions to the raw unit.</p>
+<pre><code>long:  p0 = ceil(e * (L - 1) / L);   bust = floor(p0 * (1e18 + bustBuffer) / 1e18)
+short: p0 = floor(e * (L + 1) / L);  bust = ceil(p0 * (1e18 - bustBuffer) / 1e18)
+</code></pre>
+<p><code>bustBuffer</code> is about 0.048%, so liquidation fires slightly before the zero-equity price. Crossing the bust price is a hard bust: the full margin is forfeited.</p>
+<h3 id="winning-close">Winning close<a class="anchor" href="#winning-close" aria-label="Link to this section">#</a></h3>
+<p>This matches 15 of 15 leaderboard settlements to float precision.</p>
+<pre><code>deadband = floor(e / 50000)                        (integer raw units)
+gainRaw  = (isLong ? x - e : e - x) - deadband
+move     = gainRaw / e
+scale    = (1 - baseRate) / (1 + 1/(move * rateMultiplier) + referenceNotional/(1e6 * move * positionMultiplier))
+adjusted = notional * move * scale                 (= adjustedPnlRaw)
+winFee   = adjusted * 0.02                         (= userPaidFeeRaw)
+net      = adjusted * 0.98
+</code></pre>
+<p>Small moves keep a small fraction of the raw gain, and large moves keep most of it. If <code>gainRaw &lt;= 0</code>, the close pays nothing.</p>
+<h3 id="losing-close">Losing close<a class="anchor" href="#losing-close" aria-label="Link to this section">#</a></h3>
+<pre><code>loss = notional * |x - e| / e        (no deadband, no haircut, no fee on the trader)
+paperMintBasis = loss * 0.98         (queue empty: the 2% LP-side fee is carved from the LP&#39;s gain)
+</code></pre>
+<h3 id="liquidation">Liquidation<a class="anchor" href="#liquidation" aria-label="Link to this section">#</a></h3>
+<pre><code>loss = margin
+paperMintBasis = margin              (verified on mainnet Liquidated rows)
+</code></pre>
+<h3 id="paper-minted">PAPER minted<a class="anchor" href="#paper-minted" aria-label="Link to this section">#</a></h3>
+<p><code>paperMinted = paperMintBasis * rate</code>, where:</p>
+<pre><code>rate = 100                                     while trackedLp &lt; $2,000,000 (including underwater)
+rate = 100 * (S / (S + H))^2                   otherwise, S = $120,000,000, H = tailProgress
+</code></pre>
+<p><code>trackedLp</code> and <code>tailProgress</code> come from <code>/query/protocol/summary</code> (<code>paper.trackedLp</code>, <code>paper.tailProgress</code>).</p>
+<h2 id="paper-and-staking">PAPER and staking<a class="anchor" href="#paper-and-staking" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Transfers.</strong> PAPER cannot be transferred at launch. It can only be staked and unstaked through intents.</li>
+<li><strong>What stakers earn.</strong> Staked PAPER earns USDC: 1% of the realised PnL of settled trades while no payouts are queued, plus the LP overflow above the $5M staker reward cap.</li>
+</ul>
+<p>Pending reward, exact against <code>PaperStaking.pendingReward(user)</code>:</p>
+<pre><code>pending = pendingBase + staked * accRewardPerShare / 1e27 - rewardDebt
+</code></pre>
+<ul>
+<li><code>staked</code>, <code>pendingBase</code> and <code>rewardDebt</code> come from the live wallet stream&#39;s <code>paper</code> object.</li>
+<li><code>accRewardPerShare</code> comes from <code>/state/trading</code> (or on chain).</li>
+<li>The precision is 1e27, not 1e18.</li>
+</ul>
+<p>PaperStaking exposes <code>pendingReward(address)</code>, <code>accRewardPerShare()</code>, <code>totalStaked()</code> and <code>DOMAIN_SEPARATOR()</code>.</p>
+<h2 id="deposits">Deposits<a class="anchor" href="#deposits" aria-label="Link to this section">#</a></h2>
+<p>Each wallet has a personal CREATE2 deposit address:</p>
+<pre><code>DepositProxyFactory.computeProxyAddress(user)
+</code></pre>
+<p>USDC that reaches that address on HyperCore is swept into the trader&#39;s balance. <code>POST /funding/deposits/check</code> asks the relayer to sweep now.</p>
+<ul>
+<li><strong>Minimum.</strong> At least 10 USDC must arrive after fees.</li>
+<li><strong>Activation fee.</strong> The first deposit pays a one-time 1 USDC activation fee.</li>
+</ul>
+<p>Routes:</p>
+<ul>
+<li><strong>From HyperCore.</strong> Send spot USDC to the deposit address with a HyperCore <code>spotSend</code>, signed by the wallet. <code>buildHyperCoreDeposit()</code> builds it.</li>
+<li><strong>From HyperEVM.</strong> Approve <code>CoreDepositWallet</code> for USDC, then call <code>depositFor(depositAddress, amount, 4294967295)</code>. That moves USDC from HyperEVM onto HyperCore for the deposit address. <code>buildHyperEvmDeposit()</code> returns the exact calls.</li>
+<li><strong>From other chains.</strong> Ethereum, Arbitrum and Solana bridge through Circle CCTP. Robinhood Chain USDG bridges through Across. Both land on HyperEVM or HyperCore first.</li>
+</ul>
+<h2 id="withdrawals">Withdrawals<a class="anchor" href="#withdrawals" aria-label="Link to this section">#</a></h2>
+<p><code>WithdrawToCore</code> is signed by the wallet. <code>amount</code> is in USDC units (6 dp) and must not exceed <code>funds.availableBalance</code> from the live stream (converted to 6 dp).</p>
+<ul>
+<li><strong>Activation fee.</strong> If the wallet has never withdrawn (<code>lifetime.withdrawnRaw == 0</code>) and <code>/query/accounts/{w}/funding</code> reports <code>coreAccount: false</code>, 1 USDC is deducted for HyperCore account activation.</li>
+<li><strong>Minimum.</strong> After that fee, at least 10 USDC must be sent.</li>
+<li><strong>Route <code>hypercore</code>.</strong> Funds land in the wallet&#39;s HyperCore spot balance.</li>
+<li><strong>Route <code>hyperevm</code>.</strong> The request also carries an onward <code>sendAsset</code> HyperCore action to the USDC system address <code>0x2000000000000000000000000000000000000000</code>, signed by the wallet, for <code>sent - 0.1 USDC</code> (gas allowance). The relayer submits it after the withdrawal lands, and <code>POST /intents/{id}/onward</code> retries it.</li>
+</ul>
+<h2 id="errors">Errors<a class="anchor" href="#errors" aria-label="Link to this section">#</a></h2>
+<p>Errors come back as <code>{ code, reason?, message? }</code>. <code>admission_rejected</code> carries a <code>reason</code>:</p>
+<table>
+<thead>
+<tr>
+<th>reason</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tradingPaused</code></td>
+<td>Trading is paused protocol-wide.</td>
+</tr>
+<tr>
+<td><code>marketPaused</code></td>
+<td>This market is paused.</td>
+</tr>
+<tr>
+<td><code>inactiveInstrument</code></td>
+<td>This market is no longer open for trading.</td>
+</tr>
+<tr>
+<td><code>belowMinimum</code></td>
+<td>Margin is below the minimum trade size.</td>
+</tr>
+<tr>
+<td><code>belowMinimumNotional</code></td>
+<td>Margin times leverage is below the minimum notional.</td>
+</tr>
+<tr>
+<td><code>leverageTooHigh</code></td>
+<td>Leverage is above the market maximum.</td>
+</tr>
+<tr>
+<td><code>positionTooLarge</code></td>
+<td>The position is above the per-position notional limit.</td>
+</tr>
+<tr>
+<td><code>openInterest</code></td>
+<td>The market has hit its OI cap on that side.</td>
+</tr>
+<tr>
+<td><code>funding</code></td>
+<td>Available collateral changed.</td>
+</tr>
+<tr>
+<td><code>noOpenPositions</code></td>
+<td>Those positions are closed or already closing.</td>
+</tr>
+<tr>
+<td><code>paperBalance</code></td>
+<td>Not enough unstaked PAPER.</td>
+</tr>
+<tr>
+<td><code>stakedBalance</code></td>
+<td>Not enough staked PAPER.</td>
+</tr>
+<tr>
+<td><code>sessionKeyLimit</code></td>
+<td>The wallet has too many active session keys.</td>
+</tr>
+<tr>
+<td><code>noDeposit</code></td>
+<td>No deposit has arrived yet.</td>
+</tr>
+<tr>
+<td><code>noRewards</code></td>
+<td>There are no staking rewards to claim.</td>
+</tr>
+<tr>
+<td><code>alreadyQueued</code></td>
+<td>An identical request is already queued.</td>
+</tr>
+</tbody></table>
+<p>Other codes:</p>
+<ul>
+<li><code>invalid_intent</code></li>
+<li><code>deadline_expired</code></li>
+<li><code>unauthorized_intent</code></li>
+<li><code>intent_not_found</code></li>
+<li><code>intent_conflict</code></li>
+<li><code>below_minimum_withdrawal</code></li>
+<li><code>below_minimum_paper_stake</code></li>
+<li><code>intake_action_paused</code></li>
+<li><code>invalid_onward</code></li>
+<li><code>rate_limited</code> (HTTP 429, honor <code>Retry-After</code>)</li>
+</ul>
+<p><code>PapertradeApiError</code> maps all of them to plain-language messages.</p>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/changelog"><small>Previous</small>Changelog</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/protocol.md">/docs/protocol.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#what-papertrade-is">What Papertrade is</a><a class="l2" href="#deployment">Deployment</a><a class="l2" href="#units">Units</a><a class="l2" href="#read-api">Read API</a><a class="l3" href="#price-tiles">Price tiles</a><a class="l2" href="#live-wallet-stream">Live wallet stream</a><a class="l2" href="#writing-signed-intents">Writing: signed intents</a><a class="l3" href="#session-keys">Session keys</a><a class="l3" href="#opening">Opening</a><a class="l3" href="#closing">Closing</a><a class="l2" href="#eip-712-schemas">EIP-712 schemas</a><a class="l2" href="#intent-ids-and-nonces">Intent ids and nonces</a><a class="l2" href="#settlement-math">Settlement math</a><a class="l3" href="#bust-liquidation-price">Bust (liquidation) price</a><a class="l3" href="#winning-close">Winning close</a><a class="l3" href="#losing-close">Losing close</a><a class="l3" href="#liquidation">Liquidation</a><a class="l3" href="#paper-minted">PAPER minted</a><a class="l2" href="#paper-and-staking">PAPER and staking</a><a class="l2" href="#deposits">Deposits</a><a class="l2" href="#withdrawals">Withdrawals</a><a class="l2" href="#errors">Errors</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

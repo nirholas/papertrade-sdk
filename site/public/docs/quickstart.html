@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quickstart | papertrade-sdk docs</title>
+<meta name="description" content="Install papertrade-sdk, read the market, stream a wallet, quote a close and sign a trade in a few minutes.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/quickstart">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/quickstart.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Quickstart | papertrade-sdk docs">
+<meta property="og:description" content="Install papertrade-sdk, read the market, stream a wallet, quote a close and sign a trade in a few minutes.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/quickstart">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Quickstart","description":"Install papertrade-sdk, read the market, stream a wallet, quote a close and sign a trade in a few minutes.","url":"https://papertrade-sdk.pages.dev/docs/quickstart","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart" aria-current="page">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>Quickstart</h1>
+<h2 id="install">Install<a class="anchor" href="#install" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">npm install papertrade-sdk viem
+</code></pre>
+<p><code>viem</code> is a peer dependency. Node 20 or newer is required for the global <code>fetch</code> and <code>AbortSignal.any</code>.</p>
+<h2 id="read-the-market">Read the market<a class="anchor" href="#read-the-market" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-ts">import { PapertradeClient, paperMintRate, wadToNumber } from &#39;papertrade-sdk&#39;;
+
+const client = new PapertradeClient();
+const trading = await client.tradingState();
+for (const m of trading.instruments) {
+  console.log(m.symbol, `max ${m.maxLeverage}x`, m.openable ? &#39;open&#39; : &#39;closed&#39;);
+}
+
+const { points } = await client.priceHistory({ instrumentId: 0, lookbackMs: 15 * 60_000 });
+console.log(&#39;BTC mark&#39;, points.at(-1)?.price);
+
+const s = await client.protocolSummary();
+console.log(&#39;PAPER per $1 of loss:&#39;, paperMintRate({
+  trackedLpUsd: wadToNumber(s.paper.trackedLp),
+  tailProgressUsd: wadToNumber(s.paper.tailProgress),
+}));
+</code></pre>
+<h2 id="quote-a-position-before-you-open-it">Quote a position before you open it<a class="anchor" href="#quote-a-position-before-you-open-it" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-ts">import { PapertradeClient, estimateClose, liquidationPriceRaw, priceFromRaw, priceToRaw, usdToWad } from &#39;papertrade-sdk&#39;;
+
+const btc = (await new PapertradeClient().tradingState()).instruments[0];
+const entry = priceToRaw(83000, btc.priceScale);
+
+const est = estimateClose({
+  instrument: btc,
+  isLong: true,
+  entryPriceRaw: entry,
+  exitPriceRaw: priceToRaw(83083, btc.priceScale),
+  marginRaw: usdToWad(100),
+  leverage: 500,
+});
+console.log(est.netPnlUsd, est.keptFraction);
+
+const bust = liquidationPriceRaw({ entryPriceRaw: entry, leverage: 500, isLong: true, bustBufferRaw: btc.bustBufferRaw });
+console.log(&#39;bust&#39;, priceFromRaw(bust, btc.priceScale));
+</code></pre>
+<p>The same numbers come from the MCP tool <code>papertrade_estimate_position</code>, and the home page runs this code live.</p>
+<h2 id="watch-a-wallet">Watch a wallet<a class="anchor" href="#watch-a-wallet" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-ts">import { streamWallet, wadToNumber } from &#39;papertrade-sdk&#39;;
+
+const stop = streamWallet({
+  wallet: &#39;0x...&#39;,
+  onState(state, kind) {
+    console.log(kind, wadToNumber(state.balance), state.positions.length, &#39;open&#39;);
+  },
+});
+// later: stop();
+</code></pre>
+<p>For a one-off snapshot use <code>fetchWalletState(address)</code>.</p>
+<h2 id="trade-with-a-session-key">Trade with a session key<a class="anchor" href="#trade-with-a-session-key" aria-label="Link to this section">#</a></h2>
+<p>A wallet authorizes a session key once. The key can open and close positions but can never withdraw.</p>
+<pre><code class="language-ts">import { PapertradeTrader, createSessionKey } from &#39;papertrade-sdk&#39;;
+import { privateKeyToAccount } from &#39;viem/accounts&#39;;
+
+const wallet = privateKeyToAccount(process.env.PAPERTRADE_WALLET_KEY as `0x${string}`);
+const trader = new PapertradeTrader({ user: wallet.address, wallet });
+await trader.registerSession(createSessionKey());
+
+const intent = await trader.prepareOpen({ market: &#39;BTC&#39;, side: &#39;long&#39;, marginUsd: 10, leverage: 1000 });
+console.log(intent.summary);              // show the user exactly what will be sent
+const { receipt } = await trader.submit(intent); // only after an explicit yes
+</code></pre>
+<p>Never submit an open, close, withdrawal, stake or deposit without the user&#39;s explicit confirmation of that specific action.</p>
+<h2 id="browsers-and-cors">Browsers and CORS<a class="anchor" href="#browsers-and-cors" aria-label="Link to this section">#</a></h2>
+<p><code>exchange.papertrade.xyz</code> sends no CORS headers. Run a same-origin proxy and point the client at it:</p>
+<pre><code class="language-ts">new PapertradeClient({ baseUrl: &#39;/api/papertrade&#39; });
+</code></pre>
+<p>This site ships one as a Pages Function; see <a href="/docs/self-hosting">Self-hosting</a>.</p>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/"><small>Previous</small>Overview</a><a class="next" href="/docs/concepts"><small>Next</small>Concepts</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/quickstart.md">/docs/quickstart.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#install">Install</a><a class="l2" href="#read-the-market">Read the market</a><a class="l2" href="#quote-a-position-before-you-open-it">Quote a position before you open it</a><a class="l2" href="#watch-a-wallet">Watch a wallet</a><a class="l2" href="#trade-with-a-session-key">Trade with a session key</a><a class="l2" href="#browsers-and-cors">Browsers and CORS</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

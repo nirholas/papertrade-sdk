@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview | papertrade-sdk docs</title>
+<meta name="description" content="What papertrade-sdk is, what it covers, and how the SDK, the MCP server and the live playground fit together.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/index.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Overview | papertrade-sdk docs">
+<meta property="og:description" content="What papertrade-sdk is, what it covers, and how the SDK, the MCP server and the live playground fit together.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Overview","description":"What papertrade-sdk is, what it covers, and how the SDK, the MCP server and the live playground fit together.","url":"https://papertrade-sdk.pages.dev/docs/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/" aria-current="page">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>papertrade-sdk</h1>
+<p><code>papertrade-sdk</code> is an unofficial TypeScript SDK for <a href="https://papertrade.xyz">Papertrade</a>, the fully on-chain synthetic perpetuals exchange on Hyperliquid&#39;s HyperEVM (chain 999). BTC and ETH trade up to 1000x leverage, settled at the Hyperliquid mid price.</p>
+<blockquote>
+<p><strong>Unofficial.</strong> An independent community project, not affiliated with or endorsed by Papertrade. 1000x leverage can lose your whole margin within seconds. Nothing here is financial advice.</p>
+</blockquote>
+<h2 id="what-you-get">What you get<a class="anchor" href="#what-you-get" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SDK</strong> (<code>npm install papertrade-sdk viem</code>)</td>
+<td>A typed client for every public read endpoint, the live wallet stream, EIP-712 signing for every intent, deposit builders and settlement math. Works in Node 20+, browsers, Bun, Deno and Cloudflare Workers.</td>
+</tr>
+<tr>
+<td><strong>Settlement math</strong></td>
+<td>Liquidation prices, winning and losing closes, liquidations, the PAPER mint curve and staking rewards. Checked against mainnet: 205 of 205 live bust prices, 15 of 15 leaderboard wins, and <code>PaperStaking.pendingReward</code> to the wei.</td>
+</tr>
+<tr>
+<td><strong>MCP server</strong> at <code>https://papertrade-sdk.pages.dev/mcp</code></td>
+<td>Seven read-only tools so any AI client can quote a position exactly, inspect a wallet, check protocol health and build unsigned EIP-712 payloads. See <a href="/docs/mcp">MCP server</a>.</td>
+</tr>
+<tr>
+<td><strong>Playground</strong> on the <a href="/">home page</a></td>
+<td>Run the SDK math in your browser against live prices and call every MCP tool from a console.</td>
+</tr>
+<tr>
+<td><strong>Docs and agent files</strong></td>
+<td>This site, plus <code>llms.txt</code>, <code>llms-full.txt</code>, an OpenAPI spec, an MCP server card and an A2A agent card. See <a href="/docs/discovery">Agent discovery</a>.</td>
+</tr>
+</tbody></table>
+<h2 id="where-to-start">Where to start<a class="anchor" href="#where-to-start" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Building an app: <a href="/docs/quickstart">Quickstart</a>, then the <a href="/docs/reference">SDK reference</a>.</li>
+<li>Using an AI assistant: <a href="/docs/connect">Connect your AI</a>.</li>
+<li>Understanding the numbers: <a href="/docs/concepts">Concepts</a> and the full <a href="/docs/protocol">Protocol reference</a>.</li>
+</ul>
+<h2 id="the-papertrade-toolkit">The Papertrade toolkit<a class="anchor" href="#the-papertrade-toolkit" aria-label="Link to this section">#</a></h2>
+<p>This SDK is the base of a suite of independent tools. Each one runs on its own, and all of them can open inside <a href="https://papertrade-os.pages.dev">Papertrade OS</a>.</p>
+<ul>
+<li><a href="https://papertrade-terminal.pages.dev">Terminal</a>: non-custodial trading terminal.</li>
+<li><a href="https://papertrade-analytics.pages.dev">Analytics</a>: TVL, volume, open interest, PAPER economics.</li>
+<li><a href="https://papertrade-explorer.pages.dev">Explorer</a>: wallets, positions, intents, leaderboard.</li>
+<li><a href="https://papertrade-liquidations.pages.dev">Liquidations</a>: liquidation map and closest-to-bust feed.</li>
+<li><a href="https://papertrade-yield.pages.dev">Yield</a>: PAPER staking.</li>
+<li><a href="https://papertrade-alerts.ninabrekkerese.workers.dev">Alerts</a>: Telegram, Discord and webhook alerts.</li>
+<li><a href="https://papertrade-copytrade.pages.dev">Copytrade</a>: copy-trading with guardrails.</li>
+<li><a href="https://papertrade-x402.pages.dev">x402</a>: pay-per-call intelligence API.</li>
+</ul>
+
+<nav class="pager" aria-label="Pagination"><span></span><a class="next" href="/docs/quickstart"><small>Next</small>Quickstart</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/index.md">/docs/index.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#what-you-get">What you get</a><a class="l2" href="#where-to-start">Where to start</a><a class="l2" href="#the-papertrade-toolkit">The Papertrade toolkit</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

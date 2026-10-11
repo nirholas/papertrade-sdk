@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent discovery | papertrade-sdk docs</title>
+<meta name="description" content="The machine-readable files this site serves so agents and registries can find the MCP server and the docs.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/discovery">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/discovery.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Agent discovery | papertrade-sdk docs">
+<meta property="og:description" content="The machine-readable files this site serves so agents and registries can find the MCP server and the docs.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/discovery">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Agent discovery","description":"The machine-readable files this site serves so agents and registries can find the MCP server and the docs.","url":"https://papertrade-sdk.pages.dev/docs/discovery","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery" aria-current="page">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>Agent discovery</h1>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="/mcp"><code>/mcp</code></a></td>
+<td>The MCP endpoint (a plain <code>GET</code> describes it)</td>
+</tr>
+<tr>
+<td><a href="/.well-known/mcp/server-card.json"><code>/.well-known/mcp/server-card.json</code></a></td>
+<td>MCP server card: server info, streamable-http transport, capabilities and the tool list</td>
+</tr>
+<tr>
+<td><a href="/.well-known/mcp.json"><code>/.well-known/mcp.json</code></a></td>
+<td>Alias of the server card</td>
+</tr>
+<tr>
+<td><a href="/.well-known/agent-card.json"><code>/.well-known/agent-card.json</code></a></td>
+<td>A2A agent card with one skill per MCP tool</td>
+</tr>
+<tr>
+<td><a href="/.well-known/agent.json"><code>/.well-known/agent.json</code></a></td>
+<td>Alias of the agent card</td>
+</tr>
+<tr>
+<td><a href="/.well-known/api-catalog"><code>/.well-known/api-catalog</code></a></td>
+<td>RFC 9727 API catalog (<code>application/linkset+json</code>)</td>
+</tr>
+<tr>
+<td><a href="/openapi.json"><code>/openapi.json</code></a></td>
+<td>OpenAPI 3.1 for <code>POST /mcp</code> and the read-only API proxy</td>
+</tr>
+<tr>
+<td><a href="/llms.txt"><code>/llms.txt</code></a>, <a href="/llms-full.txt"><code>/llms-full.txt</code></a></td>
+<td>Index and the full docs inlined for LLMs</td>
+</tr>
+<tr>
+<td><code>/docs/&lt;page&gt;.md</code></td>
+<td>Raw Markdown of every docs page</td>
+</tr>
+<tr>
+<td><a href="/robots.txt"><code>/robots.txt</code></a></td>
+<td>Content Signals and explicit allow rules for AI crawlers</td>
+</tr>
+<tr>
+<td><a href="/sitemap.xml"><code>/sitemap.xml</code></a></td>
+<td>All pages</td>
+</tr>
+</tbody></table>
+<p>The home page also sends <code>Link</code> response headers with <code>rel=&quot;service-desc&quot;</code>, <code>rel=&quot;api-catalog&quot;</code> and <code>rel=&quot;mcp&quot;</code>.</p>
+<p>All of these are generated at build time from the same tool definitions the server runs, so they cannot drift from <code>/mcp</code>.</p>
+<h2 id="mcp-registry">MCP registry<a class="anchor" href="#mcp-registry" aria-label="Link to this section">#</a></h2>
+<p><code>server.json</code> in the repository is prepared for the official MCP registry under the name <code>io.github.nirholas/papertrade-sdk</code>, pointing at the live endpoint. Publishing it is a deliberate manual step by the maintainer.</p>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/connect"><small>Previous</small>Connect your AI</a><a class="next" href="/docs/self-hosting"><small>Next</small>Self-hosting</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/discovery.md">/docs/discovery.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#mcp-registry">MCP registry</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

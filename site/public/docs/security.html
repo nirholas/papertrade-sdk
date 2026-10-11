@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security and limits | papertrade-sdk docs</title>
+<meta name="description" content="What the MCP server and proxy can and cannot do, how untrusted data is treated, and the rate limits.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/security">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/security.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Security and limits | papertrade-sdk docs">
+<meta property="og:description" content="What the MCP server and proxy can and cannot do, how untrusted data is treated, and the rate limits.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/security">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Security and limits","description":"What the MCP server and proxy can and cannot do, how untrusted data is treated, and the rate limits.","url":"https://papertrade-sdk.pages.dev/docs/security","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security" aria-current="page">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>Security and limits</h1>
+<h2 id="what-the-server-can-never-do">What the server can never do<a class="anchor" href="#what-the-server-can-never-do" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>It holds no keys and has no signing code path. Tools that touch intents return <strong>unsigned</strong> typed data only.</li>
+<li>It never submits an intent, deposit, withdrawal, stake or swap. The only POST routes the proxy forwards carry intents the user already signed elsewhere.</li>
+<li>It has no accounts and no cookies. The <code>Origin</code> header is not used for any trust decision; CORS is open because the data is public and read-only.</li>
+</ul>
+<h2 id="untrusted-data">Untrusted data<a class="anchor" href="#untrusted-data" aria-label="Link to this section">#</a></h2>
+<p>Protocol notices, leaderboard names and token metadata are untrusted strings. Tools label notices as untrusted, truncate them, and an agent must never treat them as instructions or let them trigger a spend.</p>
+<h2 id="agents-that-trade">Agents that trade<a class="anchor" href="#agents-that-trade" aria-label="Link to this section">#</a></h2>
+<p>Show the user what will be signed (<code>summary</code> plus bust price), get an explicit yes for that specific action, and never log or persist a wallet private key. Session keys can trade but cannot withdraw; store them like hot-wallet secrets.</p>
+<h2 id="limits">Limits<a class="anchor" href="#limits" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tool calls</td>
+<td>60 per minute per client IP (best effort)</td>
+</tr>
+<tr>
+<td>Request body</td>
+<td>64 KB</td>
+</tr>
+<tr>
+<td>Batch size</td>
+<td>20 messages</td>
+</tr>
+<tr>
+<td>Wallet snapshot</td>
+<td>9 s timeout</td>
+</tr>
+<tr>
+<td>Proxy intent body</td>
+<td>64 KB</td>
+</tr>
+</tbody></table>
+<p>If you hit <code>429</code>, wait for <code>Retry-After</code>. Upstream Papertrade limits also apply; the SDK honors its <code>Retry-After</code>.</p>
+<h2 id="risk">Risk<a class="anchor" href="#risk" aria-label="Link to this section">#</a></h2>
+<p>Papertrade offers up to 1000x leverage. A 0.1% adverse move can liquidate a position. This project is unofficial and not financial advice. Report vulnerabilities as described in the repository&#39;s <code>SECURITY.md</code>.</p>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/self-hosting"><small>Previous</small>Self-hosting</a><a class="next" href="/docs/faq"><small>Next</small>FAQ</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/security.md">/docs/security.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#what-the-server-can-never-do">What the server can never do</a><a class="l2" href="#untrusted-data">Untrusted data</a><a class="l2" href="#agents-that-trade">Agents that trade</a><a class="l2" href="#limits">Limits</a><a class="l2" href="#risk">Risk</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

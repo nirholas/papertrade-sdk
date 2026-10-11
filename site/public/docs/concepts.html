@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concepts | papertrade-sdk docs</title>
+<meta name="description" content="The Papertrade rules that matter when you build on it: units, bust prices, settlement, impact, fees, PAPER and intents.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/concepts">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/concepts.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Concepts | papertrade-sdk docs">
+<meta property="og:description" content="The Papertrade rules that matter when you build on it: units, bust prices, settlement, impact, fees, PAPER and intents.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/concepts">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Concepts","description":"The Papertrade rules that matter when you build on it: units, bust prices, settlement, impact, fees, PAPER and intents.","url":"https://papertrade-sdk.pages.dev/docs/concepts","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts" aria-current="page">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>Concepts</h1>
+<p>The complete, verified derivations are in the <a href="/docs/protocol">Protocol reference</a>. This page is the working summary.</p>
+<h2 id="units">Units<a class="anchor" href="#units" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>USD values are 18-decimal integers (&quot;wad&quot;).</strong> Use <code>usdToWad</code>, <code>wadToNumber</code> and <code>formatUnits</code>. Never use floats for money you intend to sign.</li>
+<li><strong>HyperEVM USDC has 6 decimals, HyperCore USDC has 8.</strong> <code>wadToUsdc</code> converts.</li>
+<li><strong>Prices are integers divided by a per-instrument <code>priceScale</code></strong> (BTC 10, ETH 100). <code>priceFromRaw</code> and <code>priceToRaw</code> convert.</li>
+<li><strong>Open interest and caps are base-asset quantities</strong> (wad BTC or ETH), not dollars. Price them at the mark with <code>openInterestUsd</code>.</li>
+</ul>
+<h2 id="markets-and-limits">Markets and limits<a class="anchor" href="#markets-and-limits" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Instruments: BTC (id 0) and ETH (id 1). Leverage is a whole number up to the market maximum (1000x at launch).</li>
+<li>Minimum margin is 10 USD and minimum notional (margin times leverage) is 10,000 USD. Maximum position is 10M USD notional.</li>
+<li><code>OpenPosition.size</code> is the <strong>margin</strong>, not the notional.</li>
+<li>Prices settle on the Hyperliquid BBO mid, read through <code>priceHistory</code> at 125 ms, 1 s or 1 min resolution.</li>
+</ul>
+<h2 id="bust-liquidation-price">Bust (liquidation) price<a class="anchor" href="#bust-liquidation-price" aria-label="Link to this section">#</a></h2>
+<p>For a long, <code>bust = ceil(entry * (L - 1) / L) * (1 + buffer)</code>. For a short, <code>bust = ceil(entry * (L + 1) / L * (1 - buffer))</code>. The buffer is about 4.76 bps. At 500x a long is liquidated about 0.15% below entry. <code>liquidationPriceRaw</code> reproduces the protocol integer exactly.</p>
+<h2 id="how-a-close-settles">How a close settles<a class="anchor" href="#how-a-close-settles" aria-label="Link to this section">#</a></h2>
+<ol>
+<li><strong>Loss:</strong> you lose the raw loss, with nothing on top. Crossing the bust price forfeits the full margin.</li>
+<li><strong>Win:</strong> the raw gain first loses an integer <strong>deadband</strong> (entry / 50,000), then an <strong>asymmetric impact haircut</strong> that grows with the size of the move and the position, then a <strong>2% win fee</strong>.</li>
+<li><code>estimateClose</code> returns each stage, plus <code>keptFraction</code>, the share of the raw gain you keep.</li>
+</ol>
+<h2 id="paper">PAPER<a class="anchor" href="#paper" aria-label="Link to this section">#</a></h2>
+<p>PAPER is minted on realized losses (the loss basis is 98% of the loss) at a rate that is flat at 100 per 1 USD while tracked LP is under 2M USD, then decays with the tail-progress high-water mark. <code>paperMintRate</code> and <code>estimatePaperMinted</code> implement the curve. Staked PAPER earns protocol fees; <code>pendingStakingRewardRaw</code> computes pending rewards with 1e27 precision.</p>
+<h2 id="intents-session-keys-and-nonces">Intents, session keys and nonces<a class="anchor" href="#intents-session-keys-and-nonces" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Every action is an EIP-712 <strong>intent</strong> posted to the relayer. The exchange domain name is the literal string <code>String</code>, which is correct and verified against a mainnet signature.</li>
+<li>A <strong>session key</strong> is registered once by the wallet and can sign opens, closes and cancels. It cannot withdraw, stake, unstake or claim.</li>
+<li>Intent ids are <code>keccak256(keccak256(&quot;papertrade:intent-id:v2&quot;) ++ digest ++ signer)</code>.</li>
+<li>Nonces only need to be unique per (user, lane). PAPER actions use their own lane. Deadlines are at most one hour out.</li>
+<li>Intent POSTs are retried only on HTTP 429 or 503 and never after a network error, so a trade is never sent twice.</li>
+</ul>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/quickstart"><small>Previous</small>Quickstart</a><a class="next" href="/docs/reference"><small>Next</small>SDK reference</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/concepts.md">/docs/concepts.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#units">Units</a><a class="l2" href="#markets-and-limits">Markets and limits</a><a class="l2" href="#bust-liquidation-price">Bust (liquidation) price</a><a class="l2" href="#how-a-close-settles">How a close settles</a><a class="l2" href="#paper">PAPER</a><a class="l2" href="#intents-session-keys-and-nonces">Intents, session keys and nonces</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

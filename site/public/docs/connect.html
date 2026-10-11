@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect your AI | papertrade-sdk docs</title>
+<meta name="description" content="Copy-paste setup for Claude, ChatGPT, Codex, Gemini, Cursor, VS Code, Windsurf, Zed, Cline, Goose, Continue and the Claude and OpenAI APIs.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/connect">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/connect.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Connect your AI | papertrade-sdk docs">
+<meta property="og:description" content="Copy-paste setup for Claude, ChatGPT, Codex, Gemini, Cursor, VS Code, Windsurf, Zed, Cline, Goose, Continue and the Claude and OpenAI APIs.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/connect">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Connect your AI","description":"Copy-paste setup for Claude, ChatGPT, Codex, Gemini, Cursor, VS Code, Windsurf, Zed, Cline, Goose, Continue and the Claude and OpenAI APIs.","url":"https://papertrade-sdk.pages.dev/docs/connect","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect" aria-current="page">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>Connect your AI</h1>
+<p>The server URL is the same everywhere:</p>
+<pre><code class="language-text">https://papertrade-sdk.pages.dev/mcp
+</code></pre>
+<p>It needs no login or API key. Pick your client below. Config formats change; each snippet was checked against the client&#39;s current documentation when this page was written.</p>
+<h2 id="claude-code">Claude Code<a class="anchor" href="#claude-code" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">claude mcp add --transport http papertrade-sdk https://papertrade-sdk.pages.dev/mcp
+</code></pre>
+<p>Add <code>--scope user</code> to enable it in every project. Run <code>/mcp</code> inside Claude Code to see the tools.</p>
+<h2 id="claude-desktop-and-claude-ai">Claude Desktop and claude.ai<a class="anchor" href="#claude-desktop-and-claude-ai" aria-label="Link to this section">#</a></h2>
+<p>Open Settings, then Connectors, then Add custom connector, and paste the URL above. Custom connectors are available on paid plans; on Team and Enterprise an owner adds them for the organization first.</p>
+<p>For a Claude Desktop config file instead, bridge the remote server with <code>mcp-remote</code> (<code>claude_desktop_config.json</code>):</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;papertrade-sdk&quot;: {
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;-y&quot;, &quot;mcp-remote&quot;, &quot;https://papertrade-sdk.pages.dev/mcp&quot;]
+    }
+  }
+}
+</code></pre>
+<h2 id="claude-api-mcp-connector">Claude API (MCP connector)<a class="anchor" href="#claude-api-mcp-connector" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">curl https://api.anthropic.com/v1/messages \
+  -H &quot;content-type: application/json&quot; \
+  -H &quot;x-api-key: $ANTHROPIC_API_KEY&quot; \
+  -H &quot;anthropic-version: 2023-06-01&quot; \
+  -H &quot;anthropic-beta: mcp-client-2025-11-20&quot; \
+  -d &#39;{
+    &quot;model&quot;: &quot;claude-opus-5-5&quot;,
+    &quot;max_tokens&quot;: 1024,
+    &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Quote a 500x BTC long with $100 margin and a +0.1% move.&quot;}],
+    &quot;mcp_servers&quot;: [{&quot;type&quot;: &quot;url&quot;, &quot;url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot;, &quot;name&quot;: &quot;papertrade-sdk&quot;}],
+    &quot;tools&quot;: [{&quot;type&quot;: &quot;mcp_toolset&quot;, &quot;mcp_server_name&quot;: &quot;papertrade-sdk&quot;}]
+  }&#39;
+</code></pre>
+<h2 id="openai-codex-cli">OpenAI Codex CLI<a class="anchor" href="#openai-codex-cli" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">codex mcp add papertrade-sdk --url https://papertrade-sdk.pages.dev/mcp
+</code></pre>
+<p>Or in <code>~/.codex/config.toml</code>:</p>
+<pre><code class="language-toml">[mcp_servers.papertrade-sdk]
+url = &quot;https://papertrade-sdk.pages.dev/mcp&quot;
+</code></pre>
+<h2 id="openai-responses-api">OpenAI Responses API<a class="anchor" href="#openai-responses-api" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-json">{
+  &quot;model&quot;: &quot;gpt-5&quot;,
+  &quot;input&quot;: &quot;What is the bust price of a 500x BTC long right now?&quot;,
+  &quot;tools&quot;: [{
+    &quot;type&quot;: &quot;mcp&quot;,
+    &quot;server_label&quot;: &quot;papertrade_sdk&quot;,
+    &quot;server_description&quot;: &quot;Read-only Papertrade market data, settlement math and unsigned EIP-712 builders.&quot;,
+    &quot;server_url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot;,
+    &quot;require_approval&quot;: &quot;never&quot;
+  }]
+}
+</code></pre>
+<p>All tools are read-only, so <code>never</code> is safe here. Keep <code>always</code> if you prefer to review every call.</p>
+<h2 id="chatgpt">ChatGPT<a class="anchor" href="#chatgpt" aria-label="Link to this section">#</a></h2>
+<p>Enable developer mode in Settings, then Connectors, then Advanced. Create a connector, choose MCP, paste the URL above and set authentication to none. ChatGPT requires a publicly reachable HTTPS endpoint, which this is. Menu names change; follow OpenAI&#39;s current &quot;Developer mode&quot; guide if they differ.</p>
+<h2 id="gemini-cli">Gemini CLI<a class="anchor" href="#gemini-cli" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">gemini mcp add --transport http papertrade-sdk https://papertrade-sdk.pages.dev/mcp
+</code></pre>
+<p>Or in <code>~/.gemini/settings.json</code> (note <code>httpUrl</code>, not <code>url</code>, which is for SSE):</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;httpUrl&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}
+</code></pre>
+<h2 id="cursor">Cursor<a class="anchor" href="#cursor" aria-label="Link to this section">#</a></h2>
+<p><code>.cursor/mcp.json</code> in a project, or <code>~/.cursor/mcp.json</code> globally:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}
+</code></pre>
+<h2 id="vs-code-github-copilot">VS Code (GitHub Copilot)<a class="anchor" href="#vs-code-github-copilot" aria-label="Link to this section">#</a></h2>
+<p><code>.vscode/mcp.json</code> (the top-level key is <code>servers</code>):</p>
+<pre><code class="language-json">{
+  &quot;servers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;type&quot;: &quot;http&quot;, &quot;url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}
+</code></pre>
+<h2 id="windsurf">Windsurf<a class="anchor" href="#windsurf" aria-label="Link to this section">#</a></h2>
+<p><code>~/.codeium/windsurf/mcp_config.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;serverUrl&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}
+</code></pre>
+<h2 id="zed">Zed<a class="anchor" href="#zed" aria-label="Link to this section">#</a></h2>
+<p><code>settings.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;context_servers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}
+</code></pre>
+<h2 id="cline">Cline<a class="anchor" href="#cline" aria-label="Link to this section">#</a></h2>
+<p><code>cline_mcp_settings.json</code>. Set <code>type</code> explicitly, otherwise Cline assumes the legacy SSE transport:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;type&quot;: &quot;streamableHttp&quot;, &quot;url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}
+</code></pre>
+<h2 id="goose">Goose<a class="anchor" href="#goose" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">goose session --with-streamable-http-extension &quot;https://papertrade-sdk.pages.dev/mcp&quot;
+</code></pre>
+<p>In the desktop app, use Extensions, Add custom extension, type Streamable HTTP, and paste the URL.</p>
+<h2 id="continue">Continue<a class="anchor" href="#continue" aria-label="Link to this section">#</a></h2>
+<p><code>.continue/mcpServers/papertrade-sdk.yaml</code>:</p>
+<pre><code class="language-yaml">name: Papertrade SDK
+version: 0.0.1
+schema: v1
+mcpServers:
+  - name: papertrade-sdk
+    type: streamable-http
+    url: https://papertrade-sdk.pages.dev/mcp
+</code></pre>
+<h2 id="any-other-agent-framework">Any other agent framework<a class="anchor" href="#any-other-agent-framework" aria-label="Link to this section">#</a></h2>
+<p>If your framework speaks OpenAPI or plain HTTP rather than MCP, use <a href="/openapi.json"><code>/openapi.json</code></a>, which documents <code>POST /mcp</code> and the read proxy. Frameworks that take an MCP URL (LangChain MCP adapters, the OpenAI Agents SDK, Vercel AI SDK, Mastra) accept the same Streamable HTTP endpoint.</p>
+<h2 id="check-it-works">Check it works<a class="anchor" href="#check-it-works" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">npx @modelcontextprotocol/inspector --cli https://papertrade-sdk.pages.dev/mcp --transport http --method tools/list
+</code></pre>
+<p>Then ask your assistant: &quot;Use papertrade-sdk to quote a 500x BTC long with 100 dollars of margin.&quot;</p>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/mcp"><small>Previous</small>MCP server</a><a class="next" href="/docs/discovery"><small>Next</small>Agent discovery</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/connect.md">/docs/connect.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#claude-code">Claude Code</a><a class="l2" href="#claude-desktop-and-claude-ai">Claude Desktop and claude.ai</a><a class="l2" href="#claude-api-mcp-connector">Claude API (MCP connector)</a><a class="l2" href="#openai-codex-cli">OpenAI Codex CLI</a><a class="l2" href="#openai-responses-api">OpenAI Responses API</a><a class="l2" href="#chatgpt">ChatGPT</a><a class="l2" href="#gemini-cli">Gemini CLI</a><a class="l2" href="#cursor">Cursor</a><a class="l2" href="#vs-code-github-copilot">VS Code (GitHub Copilot)</a><a class="l2" href="#windsurf">Windsurf</a><a class="l2" href="#zed">Zed</a><a class="l2" href="#cline">Cline</a><a class="l2" href="#goose">Goose</a><a class="l2" href="#continue">Continue</a><a class="l2" href="#any-other-agent-framework">Any other agent framework</a><a class="l2" href="#check-it-works">Check it works</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

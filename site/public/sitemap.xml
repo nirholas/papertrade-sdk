@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://papertrade-sdk.pages.dev/</loc><lastmod>2026-10-10</lastmod></url>
-  <url><loc>https://papertrade-sdk.pages.dev/llms.txt</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/quickstart</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/concepts</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/reference</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/mcp</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/connect</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/discovery</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/self-hosting</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/security</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/faq</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/changelog</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/docs/protocol</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/llms.txt</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/llms-full.txt</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://papertrade-sdk.pages.dev/openapi.json</loc><lastmod>2026-10-11</lastmod></url>
 </urlset>

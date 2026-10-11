@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ | papertrade-sdk docs</title>
+<meta name="description" content="Short answers about accuracy, signing, CORS, keys, rate limits and the relationship to Papertrade.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/faq">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/faq.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="FAQ | papertrade-sdk docs">
+<meta property="og:description" content="Short answers about accuracy, signing, CORS, keys, rate limits and the relationship to Papertrade.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/faq">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"FAQ","description":"Short answers about accuracy, signing, CORS, keys, rate limits and the relationship to Papertrade.","url":"https://papertrade-sdk.pages.dev/docs/faq","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq" aria-current="page">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>FAQ</h1>
+<p><strong>Is this official?</strong> No. It is an independent community project, not affiliated with Papertrade.</p>
+<p><strong>Can the MCP server trade for me?</strong> No. It can quote, read and build unsigned payloads. You sign in your own wallet.</p>
+<p><strong>How accurate is the settlement math?</strong> <code>liquidationPriceRaw</code> matched 205 of 205 live bust prices, <code>estimateClose</code> reproduced 15 of 15 leaderboard wins plus a loss and a liquidation, and staking rewards match the contract to the wei. <code>npm run test:live</code> re-checks production.</p>
+<p><strong>Why is the EIP-712 domain name <code>String</code>?</strong> Because that is what the deployed exchange uses. A mainnet signature only verifies under that name. Do not change it.</p>
+<p><strong>Why do I get CORS errors in the browser?</strong> <code>exchange.papertrade.xyz</code> sends no CORS headers. Use a same-origin proxy and set <code>baseUrl</code>. This site ships one.</p>
+<p><strong>Why is my quoted profit lower than price move times notional?</strong> Wins lose a deadband, an impact haircut and a 2% fee. Use <code>estimateClose</code> or <code>papertrade_estimate_position</code>.</p>
+<p><strong>Why is <code>longOiRaw</code> not a dollar amount?</strong> OI is stored as base-asset quantity. Multiply by the mark with <code>openInterestUsd</code>.</p>
+<p><strong>Can a session key withdraw?</strong> No. Only the wallet can withdraw, stake, unstake or claim.</p>
+<p><strong>My client says the server does not support SSE.</strong> It does not open server-initiated streams; every call is a plain POST. Clients that require a GET stream still work because they fall back after the <code>405</code>.</p>
+<p><strong>Where are the other tools?</strong> See the toolkit list on the <a href="/docs/">Overview</a>.</p>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/security"><small>Previous</small>Security and limits</a><a class="next" href="/docs/changelog"><small>Next</small>Changelog</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/faq.md">/docs/faq.md</a></p>
+</main>
+<div class="toc"></div>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

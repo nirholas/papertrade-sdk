@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-hosting | papertrade-sdk docs</title>
+<meta name="description" content="Run this site, the MCP server and the API proxy on your own Cloudflare Pages project.">
+<link rel="canonical" href="https://papertrade-sdk.pages.dev/docs/self-hosting">
+<link rel="alternate" type="text/markdown" href="https://papertrade-sdk.pages.dev/docs/self-hosting.md">
+<link rel="mcp-server" href="https://papertrade-sdk.pages.dev/mcp">
+<meta name="color-scheme" content="dark light">
+<meta property="og:title" content="Self-hosting | papertrade-sdk docs">
+<meta property="og:description" content="Run this site, the MCP server and the API proxy on your own Cloudflare Pages project.">
+<meta property="og:url" content="https://papertrade-sdk.pages.dev/docs/self-hosting">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/docs/docs.css">
+<script src="/docs/theme.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Self-hosting","description":"Run this site, the MCP server and the API proxy on your own Cloudflare Pages project.","url":"https://papertrade-sdk.pages.dev/docs/self-hosting","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"papertrade-sdk","url":"https://papertrade-sdk.pages.dev"}}</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="bar">
+<button class="menu" id="menu" type="button" aria-controls="side" aria-expanded="false">Menu</button>
+<a class="brand" href="/">papertrade-sdk <span>docs</span></a>
+<div class="search"><input id="q" type="search" placeholder="Search docs (press /)" aria-label="Search docs" autocomplete="off"><div id="results" hidden></div></div>
+<button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme">Theme</button>
+</header>
+<div class="layout">
+<aside class="side" id="side" data-open="false"><nav aria-label="Docs"><h2>Documentation</h2>
+<a href="/docs/">Overview</a>
+<a href="/docs/quickstart">Quickstart</a>
+<a href="/docs/concepts">Concepts</a>
+<a href="/docs/reference">SDK reference</a>
+<a href="/docs/mcp">MCP server</a>
+<a href="/docs/connect">Connect your AI</a>
+<a href="/docs/discovery">Agent discovery</a>
+<a href="/docs/self-hosting" aria-current="page">Self-hosting</a>
+<a href="/docs/security">Security and limits</a>
+<a href="/docs/faq">FAQ</a>
+<a href="/docs/changelog">Changelog</a>
+<a href="/docs/protocol">Protocol reference</a>
+<div class="ext"><h2>Links</h2>
+<a href="/">Playground</a>
+<a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+<a href="/llms.txt">llms.txt</a>
+<a href="/mcp">MCP endpoint</a>
+<a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a></div></nav></aside>
+<main id="content">
+<h1>Self-hosting on Cloudflare</h1>
+<p>The whole site is a Cloudflare Pages project: static files in <code>site/public/</code> and Pages Functions in <code>site/functions/</code>.</p>
+<pre><code class="language-bash">git clone https://github.com/nirholas/papertrade-sdk &amp;&amp; cd papertrade-sdk
+npm install
+npm run build:site
+cd site
+npx wrangler pages deploy --project-name &lt;your-project&gt; --branch main
+</code></pre>
+<p><code>npm run build:site</code> bundles the playground, renders the docs, and regenerates every discovery file. Run it before each deploy.</p>
+<h2 id="local-development">Local development<a class="anchor" href="#local-development" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">npm run dev:site   # builds, then wrangler pages dev on http://localhost:8788
+</code></pre>
+<h2 id="functions">Functions<a class="anchor" href="#functions" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Route</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>site/functions/mcp.ts</code></td>
+<td><code>/mcp</code>: the MCP server</td>
+</tr>
+<tr>
+<td><code>site/functions/api/papertrade/[[path]].ts</code></td>
+<td><code>/api/papertrade/*</code>: same-origin proxy of the public API (GET reads, the live SSE stream and already-signed intent POSTs; it never signs)</td>
+</tr>
+<tr>
+<td><code>site/functions/_lib/mcp.ts</code></td>
+<td>Transport, JSON-RPC, validation and rate limiting</td>
+</tr>
+<tr>
+<td><code>site/functions/_lib/tools.ts</code></td>
+<td>The tool catalog</td>
+</tr>
+</tbody></table>
+<h2 id="configuration">Configuration<a class="anchor" href="#configuration" aria-label="Link to this section">#</a></h2>
+<p>One variable, <code>PAPERTRADE_API_URL</code> (default <code>https://exchange.papertrade.xyz</code>), in <code>site/wrangler.toml</code>. No secrets are needed. Change the canonical host in <code>site/functions/_lib/server-info.ts</code> and <code>scripts/lib/site.mjs</code> so the generated cards and sitemap point at your domain.</p>
+<h2 id="embedding">Embedding<a class="anchor" href="#embedding" aria-label="Link to this section">#</a></h2>
+<p><code>_headers</code> allows framing by <code>https://papertrade-os.pages.dev</code> and other <code>*.pages.dev</code> hosts, and <code>/?embed=1</code> hides the marketing chrome for use inside Papertrade OS windows.</p>
+<h2 id="tests">Tests<a class="anchor" href="#tests" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">npm run typecheck &amp;&amp; npm test &amp;&amp; npm run build:site
+</code></pre>
+
+<nav class="pager" aria-label="Pagination"><a class="prev" href="/docs/discovery"><small>Previous</small>Agent discovery</a><a class="next" href="/docs/security"><small>Next</small>Security and limits</a></nav>
+<p class="meta">Raw Markdown: <a href="/docs/self-hosting.md">/docs/self-hosting.md</a></p>
+</main>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><a class="l2" href="#local-development">Local development</a><a class="l2" href="#functions">Functions</a><a class="l2" href="#configuration">Configuration</a><a class="l2" href="#embedding">Embedding</a><a class="l2" href="#tests">Tests</a></nav>
+</div>
+<footer class="foot">Unofficial community project, not affiliated with Papertrade. 1000x leverage can lose your entire margin within seconds. Not financial advice. Apache-2.0.</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>
