@@ -3,44 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>papertrade-sdk: TypeScript SDK for Papertrade perps on HyperEVM</title>
-  <meta name="description" content="Unofficial TypeScript SDK for Papertrade, the 1000x synthetic perps exchange on HyperEVM. Public API, live account stream, EIP-712 trading intents, deposits, withdrawals and settlement math verified against mainnet.">
+  <title>papertrade-sdk: TypeScript SDK and MCP server for Papertrade perps</title>
+  <meta name="description" content="Unofficial TypeScript SDK and read-only MCP server for Papertrade, the 1000x synthetic perps exchange on HyperEVM. Live playground, exact settlement math, unsigned EIP-712 builders and docs for every AI client.">
   <link rel="canonical" href="https://papertrade-sdk.pages.dev/">
   <meta property="og:title" content="papertrade-sdk">
-  <meta property="og:description" content="Read, stream, sign and settle Papertrade perps from TypeScript. Verified against mainnet.">
+  <meta property="og:description" content="Quote, stream and sign Papertrade perps from TypeScript or any AI assistant. Verified against mainnet.">
   <meta property="og:url" content="https://papertrade-sdk.pages.dev/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="color-scheme" content="dark light">
   <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310b981'/%3E%3Cpath d='M9 22l5-7 4 4 5-9' stroke='%23052e1f' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="mcp-server" href="/mcp">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
+  <script src="/embed.js"></script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"papertrade-sdk","description":"Unofficial TypeScript SDK for the Papertrade synthetic perps exchange on HyperEVM.","codeRepository":"https://github.com/nirholas/papertrade-sdk","programmingLanguage":"TypeScript","license":"https://www.apache.org/licenses/LICENSE-2.0","author":{"@type":"Person","name":"nirholas"}}
+  {"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"papertrade-sdk","description":"Unofficial TypeScript SDK and read-only MCP server for the Papertrade synthetic perps exchange on HyperEVM.","codeRepository":"https://github.com/nirholas/papertrade-sdk","programmingLanguage":"TypeScript","license":"https://www.apache.org/licenses/LICENSE-2.0","author":{"@type":"Person","name":"nirholas"}}
   </script>
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="top">
-    <span class="brand">papertrade-sdk</span>
+  <header class="top chrome">
+    <a class="brand" href="/">papertrade-sdk</a>
     <nav aria-label="Primary">
-      <a href="#estimate-section">Estimator</a>
-      <a href="#install">Install</a>
-      <a href="#verified">Verified</a>
+      <a href="#playground">Playground</a>
+      <a href="#connect">Connect your AI</a>
+      <a href="/docs/">Docs</a>
       <a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
-      <a href="https://www.npmjs.com/package/papertrade-sdk">npm</a>
+      <a href="https://papertrade-os.pages.dev/?open=sdk" class="os-link">Open in Papertrade OS</a>
+      <button id="theme" class="btn ghost" type="button" aria-label="Toggle light and dark theme">Theme</button>
     </nav>
   </header>
 
   <main id="main">
-    <section class="hero">
-      <h1>Trade Papertrade perps from TypeScript.</h1>
-      <p class="lede">Read the market, stream any wallet, sign trading intents with session keys, deposit and withdraw, and know exactly what a close pays before you send it. Every formula is checked against mainnet.</p>
-      <p class="disclaimer"><strong>Unofficial.</strong> An independent community project, not affiliated with Papertrade. 1000x leverage can lose your whole margin in seconds.</p>
-      <p id="status" class="status" data-kind="wait" role="status" aria-live="polite">Loading live data</p>
-      <button id="retry" class="btn" type="button" hidden>Retry</button>
+    <section class="hero chrome">
+      <p class="eyebrow">TypeScript SDK and MCP server</p>
+      <h1>Quote, stream and sign Papertrade perps. From code or from any AI.</h1>
+      <p class="lede">A typed client for every public endpoint, the live wallet stream, EIP-712 signing and settlement math checked against mainnet. A hosted read-only MCP server lets Claude, ChatGPT, Codex, Gemini and Cursor quote a position exactly before anyone trades.</p>
+      <div class="cta">
+        <a class="btn" href="/docs/quickstart">Get started</a>
+        <a class="btn ghost" href="#connect">Connect your AI</a>
+        <code class="pill">npm install papertrade-sdk viem</code>
+      </div>
+      <p class="disclaimer"><strong>Unofficial.</strong> An independent community project, not affiliated with Papertrade. 1000x leverage can lose your whole margin in seconds. Not financial advice.</p>
     </section>
+
+    <section class="strip chrome" aria-label="Works with">
+      <span>Works with</span>
+      <ul>
+        <li>Claude</li><li>ChatGPT</li><li>Codex</li><li>Gemini</li><li>Cursor</li><li>VS Code</li><li>Windsurf</li><li>Zed</li><li>Goose</li>
+      </ul>
+    </section>
+
+    <p id="status" class="status" data-kind="wait" role="status" aria-live="polite">Loading live data</p>
+    <button id="retry" class="btn" type="button" hidden>Retry</button>
 
     <section aria-labelledby="stats-h">
       <h2 id="stats-h" class="visually-hidden">Protocol stats</h2>
@@ -62,24 +79,80 @@
       </div>
     </section>
 
-    <section id="estimate-section" aria-labelledby="estimate-h">
-      <h2 id="estimate-h">What would a close pay?</h2>
-      <p>This runs <code>estimateClose</code> and <code>liquidationPriceRaw</code> from the SDK in your browser, using live instrument parameters and the current mid as entry.</p>
-      <div class="estimator">
-        <form class="controls" onsubmit="return false">
-          <label>Market <select id="market"></select></label>
-          <label>Side <select id="side"><option value="long">Long</option><option value="short">Short</option></select></label>
-          <label>Margin (USD) <input id="margin" type="number" min="10" step="1" value="100" inputmode="decimal"></label>
-          <label>Leverage <output id="leverage-out">500x</output><input id="leverage" type="range" min="100" max="1000" step="10" value="500"></label>
-          <label>Price move <output id="move-out">+0.10%</output><input id="move" type="range" min="-0.2" max="0.5" step="0.005" value="0.1"></label>
-        </form>
-        <div id="estimate" class="result" aria-live="polite">Waiting for a live price.</div>
+    <section id="playground" aria-labelledby="play-h">
+      <h2 id="play-h">Playground</h2>
+      <div class="tabs" role="tablist" aria-label="Playground" id="play-tabs">
+        <button type="button" role="tab" id="ptab-est" aria-controls="ppanel-est" aria-selected="true" tabindex="0">SDK estimator</button>
+        <button type="button" role="tab" id="ptab-mcp" aria-controls="ppanel-mcp" aria-selected="false" tabindex="-1">MCP console</button>
+      </div>
+      <div role="tabpanel" id="ppanel-est" aria-labelledby="ptab-est">
+        <p>This runs <code>estimateClose</code> and <code>liquidationPriceRaw</code> from the SDK in your browser, using live instrument parameters and the current mid as entry.</p>
+        <div class="estimator">
+          <form class="controls" onsubmit="return false">
+            <label>Market <select id="market"></select></label>
+            <label>Side <select id="side"><option value="long">Long</option><option value="short">Short</option></select></label>
+            <label>Margin (USD) <input id="margin" type="number" min="10" step="1" value="100" inputmode="decimal"></label>
+            <label>Leverage <output id="leverage-out">500x</output><input id="leverage" type="range" min="100" max="1000" step="10" value="500"></label>
+            <label>Price move <output id="move-out">+0.10%</output><input id="move" type="range" min="-0.2" max="0.5" step="0.005" value="0.1"></label>
+          </form>
+          <div id="estimate" class="result" aria-live="polite">Waiting for a live price.</div>
+        </div>
+      </div>
+      <div role="tabpanel" id="ppanel-mcp" aria-labelledby="ptab-mcp" hidden>
+        <p>Call the live <a href="/docs/mcp">MCP server</a> at <code>/mcp</code> exactly as an AI client would. Every tool is read-only; the two builders return unsigned payloads only.</p>
+        <div class="estimator">
+          <form class="controls" id="mcp-form" onsubmit="return false">
+            <label>Tool <select id="mcp-tool" disabled><option>Loading tools</option></select></label>
+            <p id="mcp-desc" class="note"></p>
+            <label>Arguments (JSON) <textarea id="mcp-args" rows="9" spellcheck="false" aria-describedby="mcp-desc"></textarea></label>
+            <button id="mcp-run" class="btn" type="submit" disabled>Run tool</button>
+          </form>
+          <div class="result mcp-out" aria-live="polite">
+            <p id="mcp-status" class="status" data-kind="wait">Loading tools from /mcp</p>
+            <pre id="mcp-out" tabindex="0"><code>Choose a tool and press Run.</code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="install" aria-labelledby="install-h">
-      <h2 id="install-h">Install</h2>
-      <div class="code"><pre><code>npm install papertrade-sdk viem</code></pre><button class="btn small" type="button" data-copy="npm install papertrade-sdk viem">Copy</button></div>
+    <section class="chrome" aria-labelledby="feat-h">
+      <h2 id="feat-h">What is inside</h2>
+      <div class="grid">
+        <article class="card"><h3>Typed read client</h3><p>Every public endpoint with canonical queries, retries that honor Retry-After, and decoded bigint state.</p></article>
+        <article class="card"><h3>Live wallet stream</h3><p>Server-sent events with revision-checked patches, backoff reconnects and automatic resync.</p></article>
+        <article class="card"><h3>EIP-712 signing</h3><p>Every intent, session keys that can trade but never withdraw, and the exact intent ids the relayer computes.</p></article>
+        <article class="card"><h3>Settlement math</h3><p>Bust prices, impact haircuts, win fees, the PAPER mint curve and staking rewards, exact to the wei.</p></article>
+        <article class="card"><h3>Read-only MCP server</h3><p>Seven tools at <code>/mcp</code>. Stateless Streamable HTTP, no login, no keys, no signing.</p></article>
+        <article class="card"><h3>Agent-ready docs</h3><p>Markdown twins, <code>llms-full.txt</code>, OpenAPI 3.1, a server card and an A2A agent card.</p></article>
+      </div>
+    </section>
+
+    <section id="connect" class="chrome" aria-labelledby="connect-h">
+      <h2 id="connect-h">Connect your AI</h2>
+      <p>One URL, no API key: <code>https://papertrade-sdk.pages.dev/mcp</code></p>
+      <div class="tabs" role="tablist" aria-label="Client" id="conn-tabs"><button type="button" role="tab" id="tab-claude-code" aria-controls="panel-claude-code" aria-selected="true" tabindex="0">Claude Code</button><button type="button" role="tab" id="tab-codex" aria-controls="panel-codex" aria-selected="false" tabindex="-1">Codex</button><button type="button" role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1">Gemini CLI</button><button type="button" role="tab" id="tab-cursor" aria-controls="panel-cursor" aria-selected="false" tabindex="-1">Cursor</button><button type="button" role="tab" id="tab-vscode" aria-controls="panel-vscode" aria-selected="false" tabindex="-1">VS Code</button><button type="button" role="tab" id="tab-desktop" aria-controls="panel-desktop" aria-selected="false" tabindex="-1">Claude Desktop</button></div>
+      <div role="tabpanel" id="panel-claude-code" aria-labelledby="tab-claude-code"><div class="code"><pre><code>claude mcp add --transport http papertrade-sdk https://papertrade-sdk.pages.dev/mcp</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div></div><div role="tabpanel" id="panel-codex" aria-labelledby="tab-codex" hidden><div class="code"><pre><code>codex mcp add papertrade-sdk --url https://papertrade-sdk.pages.dev/mcp</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div></div><div role="tabpanel" id="panel-gemini" aria-labelledby="tab-gemini" hidden><div class="code"><pre><code>gemini mcp add --transport http papertrade-sdk https://papertrade-sdk.pages.dev/mcp</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div></div><div role="tabpanel" id="panel-cursor" aria-labelledby="tab-cursor" hidden><div class="code"><pre><code>{
+  &quot;mcpServers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div></div><div role="tabpanel" id="panel-vscode" aria-labelledby="tab-vscode" hidden><div class="code"><pre><code>{
+  &quot;servers&quot;: {
+    &quot;papertrade-sdk&quot;: { &quot;type&quot;: &quot;http&quot;, &quot;url&quot;: &quot;https://papertrade-sdk.pages.dev/mcp&quot; }
+  }
+}</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div></div><div role="tabpanel" id="panel-desktop" aria-labelledby="tab-desktop" hidden><div class="code"><pre><code>{
+  &quot;mcpServers&quot;: {
+    &quot;papertrade-sdk&quot;: {
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;-y&quot;, &quot;mcp-remote&quot;, &quot;https://papertrade-sdk.pages.dev/mcp&quot;]
+    }
+  }
+}</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div></div>
+      <p><a href="/docs/connect">Setup for Claude API, ChatGPT, Windsurf, Zed, Cline, Goose, Continue and more</a></p>
+    </section>
+
+    <section id="install" class="chrome" aria-labelledby="install-h">
+      <h2 id="install-h">Install the SDK</h2>
+      <div class="code"><pre><code>npm install papertrade-sdk viem</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div>
       <div class="code"><pre><code>import { PapertradeClient, streamWallet } from 'papertrade-sdk';
 
 const client = new PapertradeClient();
@@ -88,10 +161,10 @@ const { instruments } = await client.tradingState();
 streamWallet({
   wallet: '0x...',
   onState: (state) => console.log(state.positions.length, 'open positions'),
-});</code></pre></div>
+});</code></pre><button class="btn small" type="button" data-copy-sibling>Copy</button></div>
     </section>
 
-    <section id="verified" aria-labelledby="verified-h">
+    <section id="verified" class="chrome" aria-labelledby="verified-h">
       <h2 id="verified-h">Verified against mainnet</h2>
       <ul class="checks">
         <li><strong>Signatures.</strong> A real batched Close from HyperEVM recovers the trader's session key, and the SDK reproduces the relayer's intent ids.</li>
@@ -100,13 +173,35 @@ streamWallet({
         <li><strong>Closes.</strong> Reproduces 15 of 15 leaderboard wins, a losing close's PAPER basis, and a mainnet liquidation.</li>
         <li><strong>Staking rewards.</strong> Matches <code>PaperStaking.pendingReward</code> to the wei.</li>
       </ul>
-      <p><a href="https://github.com/nirholas/papertrade-sdk/blob/main/docs/PROTOCOL.md">Read the protocol reference</a> · <a href="/llms.txt">llms.txt for agents</a> · <a href="https://docs.papertrade.xyz">Official Papertrade docs</a></p>
+    </section>
+
+    <section class="chrome" aria-labelledby="suite-h">
+      <h2 id="suite-h">The Papertrade toolkit</h2>
+      <div class="grid suite">
+        <a class="card" href="https://papertrade-terminal.pages.dev"><h3>Terminal</h3><p>Non-custodial trading terminal.</p></a>
+        <a class="card" href="https://papertrade-analytics.pages.dev"><h3>Analytics</h3><p>TVL, volume, open interest, PAPER economics.</p></a>
+        <a class="card" href="https://papertrade-explorer.pages.dev"><h3>Explorer</h3><p>Wallets, positions, intents, leaderboard.</p></a>
+        <a class="card" href="https://papertrade-liquidations.pages.dev"><h3>Liquidations</h3><p>Liquidation map and closest-to-bust feed.</p></a>
+        <a class="card" href="https://papertrade-yield.pages.dev"><h3>Yield</h3><p>PAPER staking.</p></a>
+        <a class="card" href="https://papertrade-alerts.ninabrekkerese.workers.dev"><h3>Alerts</h3><p>Telegram, Discord and webhook alerts.</p></a>
+        <a class="card" href="https://papertrade-copytrade.pages.dev"><h3>Copytrade</h3><p>Copy-trading with guardrails.</p></a>
+        <a class="card" href="https://papertrade-x402.pages.dev"><h3>x402</h3><p>Pay-per-call intelligence API.</p></a>
+        <a class="card" href="https://papertrade-os.pages.dev/?open=sdk"><h3>Papertrade OS</h3><p>All of the above as windows in one desktop.</p></a>
+      </div>
     </section>
   </main>
 
-  <footer class="foot">
-    <p class="related">Built on this SDK: <a href="https://github.com/nirholas/papertrade-ai">papertrade-ai</a> · <a href="https://papertrade-terminal.pages.dev">terminal</a> · <a href="https://papertrade-analytics.pages.dev">analytics</a> · <a href="https://papertrade-explorer.pages.dev">explorer</a> · <a href="https://papertrade-liquidations.pages.dev">liquidations</a> · <a href="https://papertrade-yield.pages.dev">yield</a> · <a href="https://github.com/nirholas/papertrade-alerts">alerts</a> · <a href="https://papertrade-copytrade.pages.dev">copytrade</a> · <a href="https://papertrade-x402.pages.dev">x402</a></p>
-    <p>Apache-2.0 licensed. Not affiliated with Papertrade. Data from exchange.papertrade.xyz via a same-origin proxy.</p>
+  <footer class="foot chrome">
+    <nav class="foot-links" aria-label="Footer">
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/nirholas/papertrade-sdk">GitHub</a>
+      <a href="/llms.txt">llms.txt</a>
+      <a href="/mcp">MCP</a>
+      <a href="/openapi.json">OpenAPI</a>
+      <a href="/.well-known/mcp/server-card.json">Server card</a>
+      <a href="https://papertrade-os.pages.dev/?open=sdk">Open in Papertrade OS</a>
+    </nav>
+    <p>Apache-2.0 licensed. Unofficial and not affiliated with Papertrade. 1000x leverage can lose your entire margin. Data from exchange.papertrade.xyz via a same-origin proxy.</p>
   </footer>
 </body>
 </html>
