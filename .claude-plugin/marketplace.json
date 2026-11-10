@@ -1,0 +1,22 @@
+{
+  "name": "papertrade-sdk",
+  "owner": {
+    "name": "nirholas"
+  },
+  "description": "Quote Papertrade perps, read markets and wallets, and build unsigned EIP-712 intents via a hosted MCP and SDK.",
+  "plugins": [
+    {
+      "name": "papertrade-sdk",
+      "source": "./plugins/papertrade-sdk",
+      "description": "Quote Papertrade perps, read markets and wallets, and build unsigned EIP-712 intents via a hosted MCP and SDK.",
+      "category": "finance",
+      "tags": [
+        "papertrade",
+        "perps",
+        "hyperevm",
+        "eip-712",
+        "mcp"
+      ]
+    }
+  ]
+}
